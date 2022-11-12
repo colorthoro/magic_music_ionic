@@ -1,0 +1,7 @@
+{
+  "name": "magic_music_ionic",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "vue"
+}
