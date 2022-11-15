@@ -1,0 +1,135 @@
+/*********************重置 element plus 主题***********************/
+
+:root {
+    --el-color-primary: red;
+    --el-color-primary-light-3: #f89898;
+    --el-color-primary-light-5: #fab6b6;
+    --el-color-primary-light-6: #fcd3d3;
+    --el-color-primary-light-7: #fde2e2;
+    --el-color-primary-light-8: #fde2e2;
+    --el-color-primary-light-9: #fef0f0;
+    --el-color-primary-dark-2: #c45656;
+}
+
+.el-popper.is-customized {
+    /* Set padding to ensure the height is 32px */
+    padding: 6px 12px;
+    background: linear-gradient(90deg, #fcd3d3, #fef0f0);
+}
+
+.el-popper.is-customized .el-popper__arrow::before {
+    background: linear-gradient(45deg, #fcd3d3, #fef0f0);
+    right: 0;
+}
+
+.el-table-v2__row-cell {
+    flex-direction: column;
+    align-items: stretch; // 结合上面让每一行铺满
+    justify-content: center; // 让每一行居中
+}
+
+
+/********************* pretty checkbox ***********************/
+
+$pretty--color-primary: red;
+@import "~pretty-checkbox/src/pretty-checkbox.scss";
+
+.pretty {
+    margin: 0;
+}
+
+/********************* 其它 ***********************/
+*,
+*::before,
+*::after {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+    display: none;
+}
+
+:root {
+    --netease-number-color: rgb(192, 193, 194);
+    --netease-background-color-dark: rgb(250, 250, 250);
+    --netease-red: rgb(236, 75, 75);
+    color: var(--el-text-color-primary);
+    font-size: var(--el-font-size-base);
+}
+
+li {
+    list-style: none;
+}
+
+.red-hover {
+    &:hover {
+        color: var(--el-color-primary);
+    }
+}
+
+
+.addons {
+    display: inline-block;
+    color: gray;
+    height: 1em;
+    width: 1em;
+    padding: 0.5em 1em;
+    flex-shrink: 0;
+}
+
+.active-black {
+    font-weight: bold;
+    color: black;
+}
+
+.active-red {
+    color: var(--el-color-primary);
+}
+
+.simple-del {
+    flex: 1 1 20px;
+    overflow: hidden;
+    white-space: nowrap;
+    text-indent: 10em;
+    position: relative;
+
+    &::before {
+        text-indent: 0;
+        position: absolute;
+        top: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        content: "\00D7";
+    }
+}
+
+@mixin custom-scrollbar() {
+    &::-webkit-scrollbar {
+        /* 滚动条整体样式 */
+        width: 10px;
+        /*高宽分别对应横竖滚动条的尺寸*/
+        height: 1px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+        /*滚动条里面小方块*/
+        border-radius: 10px;
+        box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.2);
+        background: #535353;
+    }
+
+    &::-webkit-scrollbar-track {
+        /*滚动条里面轨道*/
+        box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.2);
+        border-radius: 10px;
+        background: #ededed;
+    }
+}
+
+.cell-transparent {
+    background-image: radial-gradient(transparent 1px, white 1px); // 线性渐变从中心到周围，渐变区域默认铺满
+    background-size: 4px 4px; // 设定单个背景图片宽高，也就设定了渐变区域范围
+    backdrop-filter: saturate(50%) blur(4px); // 背景图片颜色饱和度降低一半，模糊宽度4px
+}
