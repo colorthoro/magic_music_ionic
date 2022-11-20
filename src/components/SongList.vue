@@ -1,87 +1,91 @@
 <template>
-  <el-tabs
-    class="songlists"
-    stretch
-    type="card"
-    addable
-    v-model="activeTabName"
-    @tab-remove="tabRemoveHandler"
-    @tab-add="tabAddHandler"
-  >
-    <el-tab-pane
-      v-for="list of allLists"
-      :key="list"
-      :label="isInnerList(list) || list"
-      :name="list"
-      :closable="!isInnerList(list)"
+  <ion-page>
+    <el-tabs
+      class="songlists"
+      stretch
+      type="card"
+      addable
+      v-model="activeTabName"
+      @tab-remove="tabRemoveHandler"
+      @tab-add="tabAddHandler"
     >
-      <div style="height: 30vh">
-        <VirtualListHead style="height: 2em" v-model:checkStatus="test">
-          <SongItemAddons
-            :config="{
-              trashUp: {
-                need: list === 'binSongs',
-                func: () =>
-                  putIntoList($refs[list][0].popCheckedItems(), 'allSongs'),
-              },
-              del: {
-                need: true,
-                func: () => delFromList($refs[list][0].popCheckedItems(), list),
-              },
-              plus: {
-                need: true,
-                func: () => callModifyDialog($refs[list][0].popCheckedItems()),
-              },
-              more: {
-                need: true,
-              },
-              cloudDown: {
-                need: true,
-                func: () => cloudDownFunc(),
-              },
-            }"
-          />
-        </VirtualListHead>
-        <el-auto-resizer style="height: calc(30vh - 2em)">
-          <template #default="{ height }">
-            <VirtualList
-              :height="height"
-              :list="this.nowListSongs"
-              id_field="file_id"
-              v-model:checkStatus="test"
-              :ref="list"
-            >
-              <template #default="{ item: song }">
-                <SongItem
-                  :song="song"
-                  :del="(song) => delFromList([song], list)"
-                  :restorable="list === 'binSongs'"
-                />
-              </template>
-            </VirtualList>
-          </template>
-        </el-auto-resizer>
-      </div>
-    </el-tab-pane>
-    <el-tab-pane v-if="addingNewList" :name="addingNewListTempTabName">
-      <template #label>
-        <div @mouseover="$refs.listNameInput.click()">
-          <InputBtn
-            ref="listNameInput"
-            text="输入歌单名"
-            :validator="null"
-            @res="listNameInputResHandler"
-            style="width: 5em"
-          ></InputBtn>
+      <el-tab-pane
+        v-for="list of allLists"
+        :key="list"
+        :label="isInnerList(list) || list"
+        :name="list"
+        :closable="!isInnerList(list)"
+      >
+        <div style="height: 80vh">
+          <VirtualListHead style="height: 2em" v-model:checkStatus="test">
+            <SongItemAddons
+              :config="{
+                trashUp: {
+                  need: list === 'binSongs',
+                  func: () =>
+                    putIntoList($refs[list][0].popCheckedItems(), 'allSongs'),
+                },
+                del: {
+                  need: true,
+                  func: () =>
+                    delFromList($refs[list][0].popCheckedItems(), list),
+                },
+                plus: {
+                  need: true,
+                  func: () =>
+                    callModifyDialog($refs[list][0].popCheckedItems()),
+                },
+                more: {
+                  need: true,
+                },
+                cloudDown: {
+                  need: true,
+                  func: () => cloudDownFunc(),
+                },
+              }"
+            />
+          </VirtualListHead>
+          <el-auto-resizer style="height: calc(80vh - 2em)">
+            <template #default="{ height }">
+              <VirtualList
+                :height="height"
+                :list="this.nowListSongs"
+                id_field="file_id"
+                v-model:checkStatus="test"
+                :ref="list"
+              >
+                <template #default="{ item: song }">
+                  <SongItem
+                    :song="song"
+                    :del="(song) => delFromList([song], list)"
+                    :restorable="list === 'binSongs'"
+                  />
+                </template>
+              </VirtualList>
+            </template>
+          </el-auto-resizer>
         </div>
-      </template>
-    </el-tab-pane>
-  </el-tabs>
-  <button v-if="activeTabName === 'allSongs'" @click="getAllSongsFromCloud">
-    扫描云端
-  </button>
-  <button @click="play(nowListSongs)">播放当前歌单全部</button>
-  <div class="main"></div>
+      </el-tab-pane>
+      <el-tab-pane v-if="addingNewList" :name="addingNewListTempTabName">
+        <template #label>
+          <div @mouseover="$refs.listNameInput.click()">
+            <InputBtn
+              ref="listNameInput"
+              text="输入歌单名"
+              :validator="null"
+              @res="listNameInputResHandler"
+              style="width: 5em"
+            ></InputBtn>
+          </div>
+        </template>
+      </el-tab-pane>
+    </el-tabs>
+    <button v-if="activeTabName === 'allSongs'" @click="getAllSongsFromCloud">
+      扫描云端
+    </button>
+    <button @click="play(nowListSongs)">播放当前歌单全部</button>
+    <div class="main"></div>
+  </ion-page>
 </template>
 
 <script>
@@ -94,6 +98,7 @@ import SongItem from "../base/SongItem.vue";
 import SongItemAddons from "../base/SongItemAddons.vue";
 import VirtualList from "../base/VirtualList.vue";
 import VirtualListHead from "../base/VirtualListHead.vue";
+import { IonPage } from "@ionic/vue";
 
 export default {
   name: "SongList",
@@ -103,6 +108,7 @@ export default {
     SongItemAddons,
     VirtualList,
     VirtualListHead,
+    IonPage,
   },
   data() {
     return {
@@ -187,8 +193,8 @@ export default {
 
 <style scoped>
 .songlists {
-  height: 50vh;
-  width: 20em;
+  height: 80%;
+  width: 100%;
 }
 .songlists :deep(.el-tabs__header) {
   margin-bottom: 1px;

@@ -7,7 +7,6 @@
       {{ nowSentence }}
     </div>
     <div class="controlls">
-        
       <font-awesome-icon
         @click="last"
         icon="fa-solid fa-backward-step"

@@ -1,8 +1,10 @@
 import { createApp } from 'vue'
 import App from './App.vue'
-import router from './router';
+
+const app = createApp(App);
 
 import { IonicVue } from '@ionic/vue';
+app.use(IonicVue);
 
 /* Core CSS required for Ionic components to work properly */
 import '@ionic/vue/css/core.css';
@@ -23,21 +25,18 @@ import '@ionic/vue/css/display.css';
 /* Theme variables */
 import './theme/variables.css';
 
-/**自定义scss */
-import '@/style/index.scss';
-
-const app = createApp(App);
-app.use(IonicVue);
-app.use(router);
-
 /** elementPlus */
 import ElementPlus from 'element-plus'
 import 'element-plus/dist/index.css'
 app.use(ElementPlus);
 
+/**自定义scss */
+import '@/style/index.scss';
+
 /** pinia 及其持久化插件 */
 import { createPinia } from 'pinia'
 import { createPersistedState } from 'pinia-plugin-persistedstate'
+
 /** pinia-plugin-persistedstate 持久化map等对象需要用到的序列化方法 */
 import { replacer, reviver } from './tools/songsCache'
 const pinia = createPinia();
@@ -119,6 +118,9 @@ app.component('font-awesome-icon', FontAwesomeIcon)
 
 import LoadingAcc from './base/LoadingAcc.vue';
 app.component('loading-acc', LoadingAcc);
+
+import router from './router';
+app.use(router);
 
 router.isReady().then(() => {
   app.mount('#app');

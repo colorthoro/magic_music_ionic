@@ -1,20 +1,36 @@
-import axios from "axios";
+import axios from 'axios';
+import { getPlatforms } from "@ionic/vue";
+import { HTTP } from '@awesome-cordova-plugins/http';
+
+let platforms = getPlatforms();
+let baseURL = 'http://10.151.0.87:5000';
+platforms.indexOf('mobile') === -1 &&
+    platforms.indexOf('android') !== -1 &&
+    (baseURL = 'http://10.0.2.2:5000');  // emulator，没有mobile但有android
+
+function r(config) {
+    config.responseType = config.responseType || 'json';
+    return HTTP.sendRequest(baseURL + config.url, config);  // 超过50M的文件无法一次性下载
+}
 
 export function apiScanMusic() {
-    return axios.get('api/scanMusic');
+    return r({
+        url: '/scanMusic',
+        method: 'GET',
+    });
 }
-export function apiDownloadMusic(hash, url) {
-    return axios({
-        method: "get",
-        url: "api/dw",
+export async function apiDownloadMusic(hash, url) {
+    return r({
+        url: "/dw",
+        method: 'GET',
         params: { hash, url },
         responseType: "blob",
     });
 }
 export function apiGetFileInfo(file_id) {
-    return axios({
+    return r({
         method: 'get',
-        url: 'api/getf',
+        url: '/getf',
         params: { file_id }
     });
 }
@@ -52,22 +68,22 @@ export function apiGetPic(url, w, h) {
     });
 }
 export function apiGetLyricFromYun(name) {
-    return axios({
+    return r({
         method: 'get',
-        url: 'api/getLrc',
+        url: '/getLrc',
         params: { name }
     });
 }
 export function apiRegister(user_id, sp) {
-    return axios({
-        url: 'api/register',
+    return r({
+        url: '/register',
         method: 'post',
         data: { user_id, sp }
     });
 }
 export function apiLogin(user_id, sp) {
-    return axios({
-        url: 'api/login',
+    return r({
+        url: '/login',
         method: 'post',
         data: { user_id, sp }
     });

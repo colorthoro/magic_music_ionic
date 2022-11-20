@@ -16,7 +16,7 @@ const routes = [
       },
       {
         path: 'tab1',
-        component: () => import('@/views/Tab1Page.vue')
+        component: () => import('@/components/SongList.vue')
       },
       {
         path: 'tab2',
