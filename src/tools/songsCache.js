@@ -7,9 +7,10 @@ import { findAllResultSongs, splitSongName } from './songSuggest';
 import Dexie from "dexie";
 
 export const db = new Dexie("magic_music");
-db.version(1).stores({
+db.version(2).stores({
     songs: "++id, &content_hash",
-    pics: "++id, &song_hash"
+    pics: "++id, &song_hash",
+    users: "++id, &user_name",
 });
 
 export class Song {
