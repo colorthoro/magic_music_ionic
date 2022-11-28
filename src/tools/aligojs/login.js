@@ -17,11 +17,46 @@ export default class Auth {
     constructor(name = 'test') {
         this.name = name;
         this.agent = HTTP;
+        this.status = { key: '', info: '' };  // '', 'waitingScan', 'waiting', 'loggedIn', 'error'
+        this.canceled = false;
+    }
+    addStatusListener(key, func) {
+        if (this.canceled) return;
+        this.listenerMap = this.listenerMap || new Map();
+        if (['', 'waitingScan', 'waiting', 'loggedIn', 'error'].indexOf(key) !== -1) {
+            if (this.listenerMap.has(key)) {
+                this.listenerMap[key].add(func);
+            } else this.listenerMap.set(key, new Set([func]));
+        }
+    }
+    _changeStatusTo(status) {
+        this.status.key = status.key || '';
+        this.status.info = status.info || '';
+        console.log('change', this.status);
+        if (!this.listenerMap || this.canceled) return;
+        try {
+            let g = this.listenerMap.get('');
+            g && g.forEach(func => func(status));
+            let listeners = this.listenerMap.get(status.key);
+            listeners && listeners.forEach(func => func(status));
+        } catch (e) {
+            throw new Error('Auth status listner func error' + e.message);
+        }
+    }
+    quit() {
+        this.canceled = true;
     }
     async ok() {
-        await this._init();
-        await (await this.exist() ? this._lazyRefresh() : this._login())
-        return { request: this.request.bind(this), userConfig: this.userConfig };
+        try {
+            this._changeStatusTo({ key: 'waiting' });
+            await this._init();
+            let success = await (await this.exist() ? this._lazyRefresh() : this._login());
+            if (success) this._changeStatusTo({ key: 'loggedIn' });
+            else this._changeStatusTo({ key: 'error', info: 'unknown error, maybe canceled.' });
+            return { request: this.request.bind(this), userConfig: this.userConfig };
+        } catch (e) {
+            this._changeStatusTo({ key: 'error', info: e.message });
+        }
     }
     async _init() {
         let tryRes = await this.request({
@@ -40,8 +75,8 @@ export default class Auth {
     }
     async _login() {
         let res = await this._loginByQrcode();
-        if (res.data?.content?.data?.loginResult !== 'success') {
-            console.error('登录失败');
+        if (!res || res.data?.content?.data?.loginResult !== 'success') {
+            console.error(this.name, '登录失败');
             return;
         }
         let secret = res.data.content.data.bizExt;
@@ -57,12 +92,13 @@ export default class Auth {
         console.log('qrcodeRes\n', qrcodeRes.status, qrcodeRes.data, qrcodeRes.text);
         let data = qrcodeRes.data?.content?.data;
         let codeContent = data.codeContent;
-        //TODO:
         QRcode.toDataURL(codeContent, (_, url) => {
             console.log(url);
+            this._changeStatusTo({ key: 'waitingScan', info: url });
         });
         // eslint-disable-next-line
-        while (1) {
+        while (!this.canceled) {
+            console.log(this.name);
             let okRes = await this.request({
                 url: cfg.PASSPORT_HOST + cfg.NEWLOGIN_QRCODE_QUERY_DO,
                 method: 'post',
@@ -75,14 +111,14 @@ export default class Auth {
                 case 'NEW': console.log('未扫描'); break;
                 case 'SCANED': console.log('已扫描 等待确认'); break;
                 case 'CONFIRMED': console.log('已确认 可关闭二维码窗口'); return okRes;
-                default: console.log('未知错误 可能二维码已经过期'); return;
+                default: console.log('未知错误 可能二维码已经过期'); throw new Error('未知错误 可能二维码已经过期');
             }
             await new Promise(ok => setTimeout(ok, 3000));
         }
     }
     async _lazyRefresh(userConfig) {
         userConfig = userConfig || await this.getUserConfig();
-        if (!userConfig) { console.error('no user config'); return; }
+        if (!userConfig) { console.error(this.name, 'no user config'); return; }
         let expireTime = new Date(userConfig.expireTime).getTime();
         let expectTime = new Date();
         expectTime.setHours(expectTime.getHours() + 1);
@@ -94,7 +130,7 @@ export default class Auth {
     }
     async _refresh(refreshToken) {
         refreshToken = refreshToken || (await this.getUserConfig()).refreshToken;
-        if (!refreshToken) { console.error('no refresh token'); return; }
+        if (!refreshToken) { console.error(this.name, 'no refresh token'); return; }
         let res = await this.request({
             url: cfg.API_HOST + cfg.V2_ACCOUNT_TOKEN,
             method: 'post',
@@ -105,7 +141,7 @@ export default class Auth {
         });
         // console.log(res);
         if (res.status !== 200) {
-            console.error('refresh failed:', res.status, res.data, res.text);
+            console.error(this.name, 'refresh failed:', res.status, res.data, res.text);
             return this._login();
         }
         let userConfig = res.data;
@@ -158,7 +194,7 @@ export default class Auth {
                     responseType
                 });
             } catch (err) {
-                console.error(err);
+                console.error(this.name, err);
                 return Promise.reject({ err, info: 'breaking error' });
             }
             if (res.status === 401) {
