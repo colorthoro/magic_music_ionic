@@ -1,9 +1,9 @@
 import {
-    apiGetLyric, apiGetDetail, apiGetPic
+    apiGetLyric, apiGetDetail, apiGetPic,
+    aligoJsDownload, aligoJsUrl, aligoJsLrc
 } from "../tools/api";
 import { findAllResultSongs, splitSongName } from './songSuggest';
 import Dexie from "dexie";
-import useUserStore from "@/store/user";
 
 export const db = new Dexie("magic_music");
 db.version(2).stores({
@@ -61,7 +61,7 @@ export class Song {
             console.log('已从本地IndexedDB取得文件', hash, test);
             return test.file;
         }
-        let res = await useUserStore().aligo.download(this.file_id);
+        let res = await aligoJsDownload(this.file_id);
         console.log('获取文件成功，准备存入IndexedDB', hash, res);
         db.songs.put({
             content_hash: this.content_hash,
@@ -79,7 +79,7 @@ export class Song {
             let outdated = !expireTime || expireTime < expectTime;
             if (!outdated) return urlRes.url;
         }
-        urlRes = await useUserStore().aligo.getDownloadUrl(this.file_id);
+        urlRes = await aligoJsUrl(this.file_id);
         this.urlRes = urlRes;
         return urlRes.url;
     }
@@ -105,7 +105,7 @@ export class Song {
     async fetchLrc() {
         if (this.lyric) return this.lyric;
         console.log('在云盘查找歌词');
-        let res = await useUserStore().aligo.getLrc(this.name);
+        let res = await aligoJsLrc(this.name);
         if (res.length && res !== 'not found') {
             this.lyric = res;
             return this.lyric;

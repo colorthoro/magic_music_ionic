@@ -1,4 +1,5 @@
 import axios from 'axios';
+import useUserStore from '@/store/user';
 
 export function apiSuggestSongsInfo(keywords) {
     return axios({
@@ -32,4 +33,20 @@ export function apiGetPic(url, w, h) {
         } : null,
         responseType: 'blob',
     });
+}
+
+export function aligoJsDownload(file_id) {
+    return useUserStore().aligo.download(file_id);
+}
+
+export function aligoJsUrl(file_id) {
+    return useUserStore().aligo.getDownloadUrl(file_id);
+}
+
+export function aligoJsLrc(name) {
+    return useUserStore().aligo.getLrc(name);
+}
+
+export function aligoJsScanMusic() {
+    return useUserStore().aligo.scanMusic();
 }

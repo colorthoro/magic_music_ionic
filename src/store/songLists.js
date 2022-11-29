@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia';
 import { Song } from '../tools/songsCache';
-import useUserStore from './user';
+import { aligoJsScanMusic } from '@/tools/api';
 
 const useSongListsStore = defineStore('songLists', {
     persist: {
@@ -101,7 +101,7 @@ const useSongListsStore = defineStore('songLists', {
             return true;
         },
         async getAllSongsFromCloud() {
-            let res = await useUserStore().aligo.scanMusic();
+            let res = await aligoJsScanMusic();
             this.putIntoList(res, 'allSongs');
         },
         addNewList(listName = 'test') {
