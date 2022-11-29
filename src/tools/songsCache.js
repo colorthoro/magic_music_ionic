@@ -1,10 +1,9 @@
 import {
-    apiDownloadMusic, apiGetFileInfo,
-    apiGetLyric, apiGetLyricFromYun,
-    apiGetDetail, apiGetPic
+    apiGetLyric, apiGetDetail, apiGetPic
 } from "../tools/api";
 import { findAllResultSongs, splitSongName } from './songSuggest';
 import Dexie from "dexie";
+import useUserStore from "@/store/user";
 
 export const db = new Dexie("magic_music");
 db.version(2).stores({
@@ -57,39 +56,32 @@ export class Song {
     }
     async fetch() {
         let hash = this.content_hash;
-        let url = this.download_url;
         let test = await db.songs.get({ content_hash: this.content_hash });
         if (test) {
             console.log('已从本地IndexedDB取得文件', hash, test);
             return test.file;
         }
-        let res = await apiDownloadMusic(hash, url);
-        if (res.data.type !== 'application/octet-stream') {
-            if (await res.data.text() === '无效下载链接') {
-                console.error('无效下载链接');
-                this.lost = true;
-                this.lost = ! await this.updateUrl();
-                if (!this.lost) return await this.fetch();
-            }
-            return;
-        }
-        console.log('获取文件成功，准备存入IndexedDB', hash, res.data);
+        let res = await useUserStore().aligo.download(this.file_id);
+        console.log('获取文件成功，准备存入IndexedDB', hash, res);
         db.songs.put({
             content_hash: this.content_hash,
-            file: res.data,
+            file: res,
         });
-        return res.data;
+        return res;
     }
-    async updateUrl() {
-        // 根据file_id重新获取文件信息，比对download_url，不同则赋值，并改变this.lost
-        console.log('正在尝试获取文件信息', this.file_id);
-        let res = await apiGetFileInfo(this.file_id);
-        if (res.data.download_url && res.data.download_url !== this.download_url) {
-            this.download_url = res.data.download_url;
-            console.log('更新下载链接成功！');
-            return true;
+    async fetchUrl() {
+        let urlRes = this.urlRes;
+        if (urlRes) {
+            let expireTime = new Date(urlRes.expiration).getTime();
+            let expectTime = new Date();
+            expectTime.setMinutes(expectTime.getMinutes() + 15);
+            expectTime = expectTime.getTime();
+            let outdated = !expireTime || expireTime < expectTime;
+            if (!outdated) return urlRes.url;
         }
-        return false;
+        urlRes = await useUserStore().aligo.getDownloadUrl(this.file_id);
+        this.urlRes = urlRes;
+        return urlRes.url;
     }
     async bindNeteaseId(refresh = false) {
         if (!refresh && this.netease_id) {
@@ -113,7 +105,7 @@ export class Song {
     async fetchLrc() {
         if (this.lyric) return this.lyric;
         console.log('在云盘查找歌词');
-        let res = (await apiGetLyricFromYun(this.name)).data;
+        let res = await useUserStore().aligo.getLrc(this.name);
         if (res.length && res !== 'not found') {
             this.lyric = res;
             return this.lyric;

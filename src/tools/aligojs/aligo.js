@@ -61,6 +61,58 @@ export default class Aligo extends Auth {
     queryMaker = queryMaker;
 }
 
+Aligo.prototype.scanMusic = async function () {
+    let q = [], marker = '';
+    do {
+        if (marker === '') q.push(await this.searchFiles('.', 'audio'));
+        else q.push(await this._searchFiles(new this.classes.SearchFileRequest({
+            query: this.queryMaker('.', 'audio'),
+            marker
+        })));
+        marker = q[q.length - 1].next_marker;
+    } while (marker);
+    // console.log(q);
+    let res = [];
+    q.forEach(response => {
+        res = res.concat(response.items);
+    })
+    return res;
+}
+Aligo.prototype.download = async function (file_id) {
+    let urlRes = await this.getDownloadUrl(file_id);
+    console.log(urlRes);
+    let fullSize = urlRes.size, nowEnd = 0;
+    let q = [];
+    while (nowEnd < fullSize) {
+        let st = nowEnd, ed;
+        if (nowEnd + 10485760 < fullSize) {
+            ed = nowEnd + 10485760;
+        } else ed = '';
+        let res = await this.request({
+            url: urlRes.url,
+            method: 'get',
+            headers: { 'Range': 'bytes=' + st + '-' + ed },
+            responseType: 'blob',
+        });
+        if (res && res.data instanceof Blob) {
+            q.push(res.data);
+        }
+        nowEnd = Number(ed) || fullSize;
+    }
+    let blob = new Blob(q, { type: "application/oct-stream" });
+    console.log(blob);
+    return blob;
+}
+Aligo.prototype.getLrc = async function (name) {
+    let fileList = await this.searchFiles(name.split('.')[0] + '.txt', '', 1);
+    if (fileList.items.length) {
+        let blob = await this.download(fileList.items[0].file_id);
+        let lrc = await blob.text();
+        console.log(lrc);
+        return lrc;
+    }
+    return 'not found';
+}
 
 // (async function test() {
 //     let ali = new Aligo('test');
