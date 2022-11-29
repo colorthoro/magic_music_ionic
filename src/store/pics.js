@@ -27,6 +27,7 @@ export default defineStore('pics', {  // 避免重复创建歌曲图片对象
                 urlP = song.fetchPicture().then(blob => {
                     let url = blob ? URL.createObjectURL(blob) :
                         this.defaultPicUrl + song.picId;
+                    console.log('picUrl Promise fullfilled with', url);
                     this.url2id.set(url, song.picId);
                     return url;
                 });

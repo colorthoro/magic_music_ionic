@@ -80,10 +80,13 @@
         </template>
       </el-tab-pane>
     </el-tabs>
-    <button v-if="activeTabName === 'allSongs'" @click="getAllSongsFromCloud">
+    <ion-button
+      v-if="activeTabName === 'allSongs'"
+      @click="getAllSongsFromCloud"
+    >
       扫描云端
-    </button>
-    <button @click="play(nowListSongs)">播放当前歌单全部</button>
+    </ion-button>
+    <ion-button @click="play(nowListSongs)">播放当前歌单全部</ion-button>
     <div class="main"></div>
   </ion-page>
 </template>
@@ -98,7 +101,7 @@ import SongItem from "../base/SongItem.vue";
 import SongItemAddons from "../base/SongItemAddons.vue";
 import VirtualList from "../base/VirtualList.vue";
 import VirtualListHead from "../base/VirtualListHead.vue";
-import { IonPage } from "@ionic/vue";
+import { IonPage, IonButton } from "@ionic/vue";
 
 export default {
   name: "SongList",
@@ -109,6 +112,7 @@ export default {
     VirtualList,
     VirtualListHead,
     IonPage,
+    IonButton,
   },
   data() {
     return {
@@ -193,7 +197,7 @@ export default {
 
 <style scoped>
 .songlists {
-  height: 80%;
+  height: 60vh;
   width: 100%;
 }
 .songlists :deep(.el-tabs__header) {
