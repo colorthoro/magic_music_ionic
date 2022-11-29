@@ -152,7 +152,7 @@ export default defineStore('playingQ', {
                 audio.volume = 0.8;
             });
         },
-        async _play(songOrSongs) {
+        async _play(songOrSongs, offline = false) {
             // 准备audio
             if (!(this.audio instanceof Audio)) {
                 var audio = new Audio();
@@ -175,10 +175,12 @@ export default defineStore('playingQ', {
             // 下载歌曲
             console.log('准备获取', targetSong);
             let _playId = ++this.fetching;
-            let blob;
+            let blobOrUrl;
             try {
                 this.lastFetching = targetSong;
-                blob = await targetSong.fetch();
+                blobOrUrl = await (offline ?
+                    targetSong.fetch() : targetSong.fetchUrl()
+                );
             } catch (e) {
                 console.error(e);
                 this.failed = true;
@@ -187,13 +189,15 @@ export default defineStore('playingQ', {
 
             // 播放歌曲
             if (this.fetching === _playId) {
-                this.fetching = 0;
-                console.log(_playId, ' 即将开始播放 ', blob);
-                this._recordPlayed(targetSong);
-                let url = URL.createObjectURL(blob);
+                console.log(_playId, ' 即将开始播放 ', blobOrUrl);
+                let url = offline ? URL.createObjectURL(blobOrUrl) : blobOrUrl;
                 this.audio.src = url;
                 this.audio.controls = true;
-                this.audio.play();
+                this.audio.addEventListener('canplaythrough', () => {
+                    this.audio.play();
+                    this.fetching = 0;
+                    this._recordPlayed(targetSong);
+                });
             } else {
                 console.log(_playId, '播放被其它歌曲抢占，错过歌曲', targetSong);
             }
