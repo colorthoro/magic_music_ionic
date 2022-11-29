@@ -36,17 +36,17 @@ export function apiGetPic(url, w, h) {
 }
 
 export function aligoJsDownload(file_id) {
-    return useUserStore().aligo.download(file_id);
+    return useUserStore().ali.download(file_id);
 }
 
 export function aligoJsUrl(file_id) {
-    return useUserStore().aligo.getDownloadUrl(file_id);
+    return useUserStore().ali.getDownloadUrl(file_id);
 }
 
 export function aligoJsLrc(name) {
-    return useUserStore().aligo.getLrc(name);
+    return useUserStore().ali.getLrc(name);
 }
 
 export function aligoJsScanMusic() {
-    return useUserStore().aligo.scanMusic();
+    return useUserStore().ali.scanMusic();
 }
