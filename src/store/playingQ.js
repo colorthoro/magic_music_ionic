@@ -42,6 +42,7 @@ export default defineStore('playingQ', {
         duration: 0,
         volume: 0,
         fetching: 0,
+        waiting: false,
         lastFetching: null,
         failed: false,
     }),
@@ -154,6 +155,12 @@ export default defineStore('playingQ', {
                 this.duration = parseInt(audio.duration);
                 audio.volume = 0.8;
             });
+            audio.addEventListener('waiting', () => {
+                this.waiting = true;
+            })
+            audio.addEventListener('playing', () => {
+                this.waiting = false;
+            })
             this._audioSafePlay = debounce(50, audio.play.bind(audio), { atBegin: true });
             this._audioSafePause = debounce(50, audio.pause.bind(audio), { atBegin: true });
         },
