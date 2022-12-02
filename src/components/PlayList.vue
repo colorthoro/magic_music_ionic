@@ -81,12 +81,10 @@ export default {
 .play-list-container {
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+  justify-content: space-around;
   align-items: center;
-  .head {
-    margin-bottom: 5px;
-  }
   .list {
+    border-top: 1px solid var(--el-border-color-light);
     width: 100%;
     height: 90%;
     cursor: pointer;
@@ -95,9 +93,11 @@ export default {
       position: absolute;
       bottom: 20px;
       right: 20px;
+      padding: 10px;
       font-size: 20px;
       background-color: rgba(255, 255, 255, 0.7);
       border-radius: 50%;
+      border: 1px solid var(--el-border-color-light);
     }
   }
 }

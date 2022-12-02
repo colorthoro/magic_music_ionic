@@ -10,14 +10,21 @@
       >
         <div class="bar-inner">
           <div class="progress" ref="progress">
-            <div
-              class="progress-btn"
-              v-show="!disabled && showProgressBtn"
-              @mousedown="dragSet($event)"
-              @touchstart="dragSet($event)"
-              @touchmove="dragSet($event)"
-              @touchend="dragSet($event)"
-            ></div>
+            <div class="progress-btn-pos">
+              <transition
+                enter-active-class="animate__animated animate__zoomIn"
+                leave-active-class="animate__animated animate__zoomOut"
+              >
+                <div
+                  class="progress-btn"
+                  v-show="!disabled && showProgressBtn"
+                  @mousedown="dragSet($event)"
+                  @touchstart="dragSet($event)"
+                  @touchmove="dragSet($event)"
+                  @touchend="dragSet($event)"
+                ></div>
+              </transition>
+            </div>
           </div>
         </div>
       </div>
@@ -163,17 +170,19 @@ export default {
           position: absolute;
           height: 100%;
           background-color: red;
-          .progress-btn {
+          .progress-btn-pos {
             position: absolute;
             top: 50%;
             right: 0;
             transform: translate(50%, -50%);
-            box-sizing: border-box;
-            width: 16px;
-            height: 16px;
-            border: 3px solid white;
-            border-radius: 50%;
-            background: red;
+            .progress-btn {
+              box-sizing: border-box;
+              width: 16px;
+              height: 16px;
+              border: 3px solid white;
+              border-radius: 50%;
+              background: red;
+            }
           }
         }
       }
