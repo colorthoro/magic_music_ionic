@@ -4,35 +4,35 @@
       <div class="song-pic">
         <img :src="picUrlReciver.url" />
       </div>
-      {{ nowSentence }}
+      {{ nowIndex == 0 ? recent?.name : nowSentence }}
     </div>
-    <div class="controlls">
-      <font-awesome-icon
-        @click="last"
-        icon="fa-solid fa-backward-step"
-      ></font-awesome-icon>
+    <div class="mode">
+      <!-- <span class="time">
+        {{ formalTime(currentTime) }}|{{ formalTime(duration) }}
+      </span> -->
       <div style="position: relative">
         <font-awesome-icon
-          @click="this.audio && onOff"
+          @click="this.audio && onOff()"
           v-if="!this.audio || this.audio.paused"
           icon="fa-solid fa-circle-play"
-          :style="{ color: fetching ? '#cfa3a3' : 'red' }"
+          :style="{ color: loading ? '#cfa3a3' : 'red' }"
           style="background-color: white; border-radius: 50%"
         />
         <font-awesome-icon
           @click="onOff"
           v-else
           icon="fa-solid fa-circle-pause"
-          :style="{ color: fetching ? '#cfa3a3' : 'red' }"
+          :style="{ color: loading ? '#cfa3a3' : 'red' }"
           style="background-color: white; border-radius: 50%"
         />
         <loading-acc
-          v-if="fetching"
+          v-if="loading"
           stroke="red"
           style="
             display: block;
-            height: 40px;
-            width: 40px;
+            margin: 0;
+            height: 35px;
+            width: 35px;
             position: absolute;
             top: 50%;
             left: 50%;
@@ -40,16 +40,7 @@
           "
         ></loading-acc>
       </div>
-      <font-awesome-icon
-        @click="next"
-        icon="fa-solid fa-forward-step"
-      ></font-awesome-icon>
-    </div>
-    <div class="mode">
-      <span class="time">
-        {{ formalTime(currentTime) }}|{{ formalTime(duration) }}
-      </span>
-      <div class="volume">
+      <!-- <div class="volume">
         <div class="icon" @click="if (audio) audio.muted = !audio.muted;">
           <font-awesome-icon
             icon="fa-solid fa-volume-xmark"
@@ -75,8 +66,8 @@
             v-model="volumeControll"
           ></ProgressSlider>
         </div>
-      </div>
-      <div class="order" @click="nowOrder++">
+      </div> -->
+      <!-- <div class="order" @click="nowOrder++">
         <font-awesome-layers>
           <font-awesome-icon
             v-if="playOrder === 'random'"
@@ -89,10 +80,10 @@
             transform="shrink-10"
           />
         </font-awesome-layers>
-      </div>
+      </div> -->
       <el-popover
-        placement="top"
-        width="50vw"
+        placement="top-start"
+        width="90vw"
         trigger="click"
         :hide-after="0"
         transition="el-zoom-in-bottom"
@@ -111,7 +102,7 @@
     <!-- 进度条 -->
     <ProgressSlider
       style="position: absolute; top: 0; transform: translate(0, -50%)"
-      :disabled="!audio || !!fetching"
+      :disabled="!audio || loading"
       :max="duration - 1"
       :beforeDrag="() => !audio.paused"
       :onDrag="() => onOff(0, false)"
@@ -146,7 +137,7 @@ export default {
     return {
       timeout: null,
       callPlayList: false,
-      picUrlReciver: { id: 0, url: null },
+      picUrlReciver: { id: 0, url: require("@/assets/background.png") },
     };
   },
   computed: {
@@ -156,19 +147,20 @@ export default {
       "audio",
       "currentTime",
       "duration",
-      "volume",
+      // "volume",
       "fetching",
+      "waiting",
       "recent",
     ]),
-    ...mapState(useLyricStore, ["nowSentence"]),
-    volumeControll: {
-      get() {
-        return parseInt(this.volume * 100);
-      },
-      set(val) {
-        if (this.audio) this.audio.volume = val / 100;
-      },
-    },
+    ...mapState(useLyricStore, ["nowSentence", "nowIndex"]),
+    // volumeControll: {
+    //   get() {
+    //     return parseInt(this.volume * 100);
+    //   },
+    //   set(val) {
+    //     if (this.audio) this.audio.volume = val / 100;
+    //   },
+    // },
     currentTimeControll: {
       get() {
         return this.currentTime;
@@ -176,6 +168,9 @@ export default {
       set(val) {
         if (this.audio) this.audio.currentTime = val;
       },
+    },
+    loading() {
+      return !!this.fetching || this.waiting;
     },
   },
   methods: {
@@ -211,21 +206,24 @@ export default {
 <style lang="scss" scoped>
 .container {
   display: flex;
+  position: relative;
   justify-content: space-between;
   height: v-bind("height");
   width: 100%;
+  height: 55px;
   z-index: 99;
 }
 .song {
   display: flex;
+  flex: 1;
   color: gray;
   align-items: center;
   padding-left: 1rem;
-  width: 40%;
   overflow: hidden;
+  height: 100%;
   .song-pic {
-    width: 50px;
-    height: 50px;
+    width: 42px;
+    height: 42px;
     flex-shrink: 0;
     border-radius: 10px;
     margin-right: 20px;
@@ -240,61 +238,27 @@ export default {
     }
   }
 }
-.controlls {
-  display: flex;
-}
+
 .mode {
   display: flex;
+  flex: 0 0 20%;
   align-items: center;
   justify-content: flex-end;
   padding-right: 1rem;
-  width: 40%;
 }
 .mode * + * {
-  margin-left: 10px;
+  margin-left: 15px;
 }
-.time {
-  margin-right: 1rem;
-  color: var(--netease-number-color);
-  user-select: none;
-}
-@media (max-width: 35em) {
-  .song,
-  .mode {
-    display: none;
-  }
-  .container {
-    justify-content: center;
-  }
-}
+
 .fa-circle-play,
 .fa-circle-pause {
   display: block;
   color: red;
-  height: 40px;
-  margin: 10px 30px;
+  height: 30px;
   cursor: pointer;
 }
-.fa-backward-step,
-.fa-forward-step {
-  display: block;
-  color: red;
-  height: 20px;
-  margin: auto;
-  cursor: pointer;
-}
-.volume {
-  width: 100px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  .icon {
-    width: 15px;
-    cursor: pointer;
-  }
-  .volume-percent {
-    width: 80%;
-    flex-grow: 1;
-  }
+.fa-bars {
+  height: 1.2rem;
+  vertical-align: bottom;
 }
 </style>
