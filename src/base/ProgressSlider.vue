@@ -26,6 +26,7 @@
 </template>
 
 <script>
+import { throttle } from "throttle-debounce";
 export default {
   data() {
     return {
@@ -63,10 +64,17 @@ export default {
       type: Function,
       defalut: null,
     },
+    afterClick: {
+      type: Function,
+      default: null,
+    },
   },
   computed: {
     cursor() {
       return this.disabled ? "default" : "pointer";
+    },
+    safeOnDrag(...args) {
+      return throttle(1000, () => this.onDrag(...args), { noTrailing: true });
     },
     percent: {
       get() {
@@ -86,16 +94,20 @@ export default {
       if (this.disabled) return;
       let rect = this.$refs.progressBar.getBoundingClientRect();
       this.percent = Math.min(1, Math.max(0, (x - rect.x) / rect.width));
+      if (this.afterClick) this.afterClick();
     },
     dragSet(e) {
       if (this.disabled) return;
       e.preventDefault();
       if (e.type === "touchstart" || e.type === "mousedown") {
+        console.log("touchstart");
         if (this.beforeDrag) this.remainPlayState = this.beforeDrag();
       } else if (e.type === "touchend") {
+        console.log("touchend");
         if (this.afterDrag) this.afterDrag(this.remainPlayState);
       } else if (e.type === "touchmove") {
-        if (this.onDrag) this.onDrag();
+        console.log("touchmove");
+        if (this.onDrag) this.safeOnDrag();
         this.setX(e.touches[0].clientX);
       }
       if (e instanceof MouseEvent) {
@@ -105,7 +117,7 @@ export default {
         if (this.timeOut) clearTimeout(this.timeOut);
         document.onmousemove = (me) => {
           me.preventDefault();
-          if (this.onDrag) this.onDrag();
+          if (this.onDrag) this.safeOnDrag();
           this.setX(me.clientX);
         };
         document.onmouseup = (ue) => {
