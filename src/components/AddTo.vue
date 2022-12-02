@@ -3,7 +3,7 @@
     ref="dialog"
     v-model="visible"
     title="添加到歌单"
-    width="30%"
+    width="90%"
     align-center
     center
   >
