@@ -30,7 +30,10 @@ import ElementPlus from 'element-plus'
 import 'element-plus/dist/index.css'
 app.use(ElementPlus);
 
-/**自定义scss */
+/** Animate.css */
+import 'animate.css';
+
+/** 自定义scss */
 import '@/style/index.scss';
 
 /** pinia 及其持久化插件 */
