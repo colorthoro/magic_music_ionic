@@ -57,6 +57,16 @@ export class Song {
     async existed() {
         return await db.songs.get({ content_hash: this.content_hash });
     }
+    async del() {
+        if (this.existed()) try {
+            console.log('删除歌曲缓存', this.name);
+            await db.songs.where('content_hash').equals(this.content_hash).delete();
+        } catch (e) {
+            console.error(e, '删除缓存失败', this.name);
+            return false;
+        }
+        return true;
+    }
     async fetch(offline = true) {
         let hash = this.content_hash;
         let test = await this.existed();

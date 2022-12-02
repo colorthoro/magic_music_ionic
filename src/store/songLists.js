@@ -81,6 +81,7 @@ const useSongListsStore = defineStore('songLists', {
                 } else if (targetList === this.lists.binSongs) {
                     let confirm = window.confirm(`确认删除《 ${song.name} 》吗？`);
                     if (!confirm) return;
+                    song.del();
                 }
                 song.tags = song.tags.filter(tag => tag !== listName);
                 console.log('del ', song.name, 'from ', listName);
