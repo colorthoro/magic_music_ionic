@@ -81,13 +81,11 @@ Aligo.prototype.scanMusic = async function () {
 Aligo.prototype.download = async function (file_id) {
     let urlRes = await this.getDownloadUrl(file_id);
     console.log(urlRes);
-    let fullSize = urlRes.size, nowEnd = 0;
+    let targetEnd = urlRes.size - 1, nowEnd = -1;
     let q = [];
-    while (nowEnd < fullSize) {
-        let st = nowEnd, ed;
-        if (nowEnd + 10485760 < fullSize) {
-            ed = nowEnd + 10485760;
-        } else ed = '';
+    while (nowEnd < targetEnd) {
+        let st = nowEnd + 1, ed;
+        ed = Math.min(targetEnd, st + 10485760);
         let res = await this.request({
             url: urlRes.url,
             method: 'get',
@@ -97,7 +95,7 @@ Aligo.prototype.download = async function (file_id) {
         if (res && res.data instanceof Blob) {
             q.push(res.data);
         }
-        nowEnd = Number(ed) || fullSize;
+        nowEnd = ed;
     }
     let blob = new Blob(q, { type: "application/oct-stream" });
     console.log(blob);
