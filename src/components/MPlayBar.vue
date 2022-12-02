@@ -88,6 +88,7 @@
         :hide-after="0"
         transition="el-zoom-in-bottom"
         :persistent="false"
+        :teleported="false"
         @before-enter="mountList"
         @hide="unmountList"
       >
