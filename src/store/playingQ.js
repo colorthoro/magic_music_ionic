@@ -154,8 +154,8 @@ export default defineStore('playingQ', {
                 this.duration = parseInt(audio.duration);
                 audio.volume = 0.8;
             });
-            this._audioSafePlay = debounce(50, audio.play.bind(audio));
-            this._audioSafePause = debounce(50, audio.pause.bind(audio));
+            this._audioSafePlay = debounce(50, audio.play.bind(audio), { atBegin: true });
+            this._audioSafePause = debounce(50, audio.pause.bind(audio), { atBegin: true });
         },
         async _play(songOrSongs, offline = false) {
             // 准备audio
