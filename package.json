@@ -38,6 +38,7 @@
     "pinia-plugin-persistedstate": "^2.4.0",
     "pretty-checkbox": "^3.0.3",
     "qrcode": "^1.5.1",
+    "throttle-debounce": "^5.0.0",
     "vue": "^3.2.45",
     "vue-cookies": "^1.8.2",
     "vue-router": "^4.1.6"
