@@ -1,6 +1,7 @@
 import { defineStore } from "pinia";
 import { Song } from "../tools/songsCache";
 import useSongListsStore from "../store/songLists";
+import { debounce } from 'throttle-debounce';
 
 // 播放队列的歌曲一开始是从localStorage新建的对象，需要与SongLists中的对象保持同步。
 function syncQ(src, target) {
@@ -35,6 +36,8 @@ export default defineStore('playingQ', {
         playOrders: ['queue', 'one', 'random'],
         nowOrder: 0,
         audio: null,
+        _audioSafePlay: null,
+        _audioSafePause: null,
         accurateTime: 0,
         duration: 0,
         volume: 0,
@@ -151,6 +154,8 @@ export default defineStore('playingQ', {
                 this.duration = parseInt(audio.duration);
                 audio.volume = 0.8;
             });
+            this._audioSafePlay = debounce(50, audio.play.bind(audio));
+            this._audioSafePause = debounce(50, audio.pause.bind(audio));
         },
         async _play(songOrSongs, offline = false) {
             // 准备audio
@@ -178,9 +183,7 @@ export default defineStore('playingQ', {
             let blobOrUrl;
             try {
                 this.lastFetching = targetSong;
-                blobOrUrl = await (offline ?
-                    targetSong.fetch() : targetSong.fetchUrl()
-                );
+                blobOrUrl = await targetSong.fetch(offline);
             } catch (e) {
                 console.error(e);
                 this.failed = true;
@@ -190,14 +193,15 @@ export default defineStore('playingQ', {
             // 播放歌曲
             if (this.fetching === _playId) {
                 console.log(_playId, ' 即将开始播放 ', blobOrUrl);
-                let url = offline ? URL.createObjectURL(blobOrUrl) : blobOrUrl;
+                let url = blobOrUrl instanceof Blob ? URL.createObjectURL(blobOrUrl) : blobOrUrl;
                 this.audio.src = url;
                 this.audio.controls = true;
-                this.audio.addEventListener('canplaythrough', () => {
-                    this.audio.play();
+                this.audio.oncanplaythrough = async () => {
+                    await this.audio.play();
                     this.fetching = 0;
                     this._recordPlayed(targetSong);
-                });
+                    this.audio.oncanplaythrough = null;
+                };
             } else {
                 console.log(_playId, '播放被其它歌曲抢占，错过歌曲', targetSong);
             }
@@ -205,8 +209,8 @@ export default defineStore('playingQ', {
         onOff(_, toStart) {  // 忽略在vue模板里直接使用时自动传递的事件对象，方便使用
             console.log('开关目标：', toStart);
             !(this.audio instanceof Audio) ? this.play() : toStart === undefined ?
-                this.audio.paused ? this.audio.play() : this.audio.pause() :
-                toStart ? this.audio.play() : this.audio.pause();
+                this.audio.paused ? this._audioSafePlay() : this._audioSafePause() :
+                toStart ? this._audioSafePlay() : this._audioSafePause();
         },
         next() {
             if (!this.playingQ.length) return;

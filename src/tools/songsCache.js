@@ -54,13 +54,17 @@ export class Song {
     sameWith(song) {
         return (song instanceof Song) && (this.content_hash === song.content_hash);
     }
-    async fetch() {
+    async existed() {
+        return await db.songs.get({ content_hash: this.content_hash });
+    }
+    async fetch(offline = true) {
         let hash = this.content_hash;
-        let test = await db.songs.get({ content_hash: this.content_hash });
+        let test = await this.existed();
         if (test) {
             console.log('已从本地IndexedDB取得文件', hash, test);
             return test.file;
         }
+        if (!offline) return await this.fetchUrl();
         let res = await aligoJsDownload(this.file_id);
         console.log('获取文件成功，准备存入IndexedDB', hash, res);
         db.songs.put({
