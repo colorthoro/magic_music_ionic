@@ -170,6 +170,7 @@ export default {
           position: absolute;
           height: 100%;
           background-color: red;
+          transition: width 0.2s ease;
           .progress-btn-pos {
             position: absolute;
             top: 50%;
