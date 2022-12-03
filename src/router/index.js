@@ -24,7 +24,7 @@ const routes = [
       },
       {
         path: 'tab3',
-        component: () => import('@/views/Tab3Page.vue')
+        component: () => import('@/components/PlayCenter.vue')
       }
     ]
   }

@@ -1,6 +1,6 @@
 <template>
   <div class="container">
-    <div class="song">
+    <div ref="song" class="song">
       <div class="song-pic">
         <img :src="picUrlReciver.url" />
       </div>
@@ -12,8 +12,8 @@
       </span> -->
       <div style="position: relative">
         <font-awesome-icon
-          @click="this.audio && onOff()"
-          v-if="!this.audio || this.audio.paused"
+          @click="recent && onOff()"
+          v-if="!playing"
           icon="fa-solid fa-circle-play"
           :style="{ color: loading ? '#cfa3a3' : 'red' }"
           style="background-color: white; border-radius: 50%"
@@ -88,13 +88,17 @@
         :hide-after="0"
         transition="el-zoom-in-bottom"
         :persistent="false"
-        :teleported="false"
         @before-enter="mountList"
         @hide="unmountList"
       >
         <template #reference>
           <div>
-            <font-awesome-icon icon="fa-solid fa-bars"> </font-awesome-icon>
+            <font-awesome-icon
+              icon="fa-solid fa-bars"
+              class="red-hover"
+              style="height: 1.5rem"
+            >
+            </font-awesome-icon>
           </div>
         </template>
         <PlayList style="height: 65vh" v-if="callPlayList" />
@@ -105,7 +109,7 @@
       style="position: absolute; top: 0; transform: translate(0, -50%)"
       :disabled="!audio || loading"
       :max="duration - 1"
-      :beforeDrag="() => !audio.paused"
+      :beforeDrag="() => !paused"
       :onDrag="() => onOff(0, false)"
       :afterDrag="(remain) => onOff(0, remain)"
       v-model="currentTimeControll"
@@ -114,13 +118,13 @@
 </template>
 
 <script>
-import { defineAsyncComponent } from "vue";
-import { mapState, mapWritableState, mapActions } from "pinia";
+import { mapState, mapActions } from "pinia";
 import usePlayingQStore from "../store/playingQ";
 import useLyricStore from "../store/lyric";
 import usePicsStore from "../store/pics";
 import ProgressSlider from "../base/ProgressSlider.vue";
-const PlayList = defineAsyncComponent(() => import("./PlayList.vue"));
+import PlayList from "./PlayList.vue";
+import Hammer from "hammerjs";
 
 export default {
   name: "MPlayBar",
@@ -142,16 +146,16 @@ export default {
     };
   },
   computed: {
-    ...mapWritableState(usePlayingQStore, ["nowOrder"]),
     ...mapState(usePlayingQStore, [
       "playOrder",
       "audio",
       "currentTime",
       "duration",
       // "volume",
-      "fetching",
-      "waiting",
       "recent",
+      "playing",
+      "loading",
+      "paused",
     ]),
     ...mapState(useLyricStore, ["nowSentence", "nowIndex"]),
     // volumeControll: {
@@ -169,9 +173,6 @@ export default {
       set(val) {
         if (this.audio) this.audio.currentTime = val;
       },
-    },
-    loading() {
-      return !!this.fetching || this.waiting;
     },
   },
   methods: {
@@ -196,6 +197,17 @@ export default {
         this.getPicUrl(this.recent, this.picUrlReciver);
       },
     },
+  },
+  mounted() {
+    let mc = new Hammer.Manager(this.$refs.song);
+    mc.add(
+      new Hammer.Pan({ direction: Hammer.DIRECTION_HORIZONTAL, threshold: 80 })
+    );
+    mc.on("pan", (e) => {
+      if (e.additionalEvent === "panleft") this.next();
+      else if (e.additionalEvent === "panright") this.last();
+    });
+    console.log(mc);
   },
   beforeUnmount() {
     delete this.picUrlReciver.id;
