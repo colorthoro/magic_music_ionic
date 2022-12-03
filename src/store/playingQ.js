@@ -43,6 +43,7 @@ export default defineStore('playingQ', {
         volume: 0,
         fetching: 0,
         waiting: false,
+        paused: false,
         lastFetching: null,
         failed: false,
     }),
@@ -71,6 +72,12 @@ export default defineStore('playingQ', {
         currentTime(state) {
             return parseInt(state.accurateTime);
         },
+        playing(state) {
+            return state.audio && !state.paused && !state.fetching && !state.waiting;
+        },
+        loading(state) {
+            return !!state.fetching || state.waiting;
+        }
     },
     actions: {
         _addToPlaying(songOrSongs, addSongMode = 'rightNow') {
@@ -157,10 +164,16 @@ export default defineStore('playingQ', {
             });
             audio.addEventListener('waiting', () => {
                 this.waiting = true;
-            })
+            });
             audio.addEventListener('playing', () => {
                 this.waiting = false;
-            })
+            });
+            audio.addEventListener('play', () => {
+                this.paused = false;
+            });
+            audio.addEventListener('pause', () => {
+                this.paused = true;
+            });
             this._audioSafePlay = debounce(50, audio.play.bind(audio), { atBegin: true });
             this._audioSafePause = debounce(50, audio.pause.bind(audio), { atBegin: true });
         },
@@ -170,7 +183,7 @@ export default defineStore('playingQ', {
                 var audio = new Audio();
                 this._initAudio(audio);
                 this.audio = audio;
-            } else if (this.audio.src && !this.audio.paused) {
+            } else if (this.audio.src && !this.paused) {
                 this.audio.pause();
                 URL.revokeObjectURL(this.audio.src);
             }
@@ -216,7 +229,7 @@ export default defineStore('playingQ', {
         onOff(_, toStart) {  // 忽略在vue模板里直接使用时自动传递的事件对象，方便使用
             console.log('开关目标：', toStart);
             !(this.audio instanceof Audio) ? this.play() : toStart === undefined ?
-                this.audio.paused ? this._audioSafePlay() : this._audioSafePause() :
+                this.paused ? this._audioSafePlay() : this._audioSafePause() :
                 toStart ? this._audioSafePlay() : this._audioSafePause();
         },
         next() {
