@@ -11,8 +11,8 @@
           />
           <div class="img-outer-border" ref="disc">
             <div class="img-outer" ref="discRotate">
-              <div class="img-wrap" :class="{ paused: !playing }">
-                <img :src="picUrlReciver.url" />
+              <div class="img-wrap">
+                <img :class="{ paused: !playing }" :src="picUrlReciver.url" />
               </div>
             </div>
           </div>
@@ -158,15 +158,15 @@ $img-outer-d: 300px;
         width: 200px;
         height: 200px;
         flex-shrink: 0;
-        animation: rotate 20s linear infinite;
-        &.paused {
-          animation-play-state: paused;
-        }
         img {
           box-shadow: 0 0 10px black;
           width: 100%;
           height: 100%;
           border-radius: 50%;
+          animation: rotate 20s linear infinite;
+          &.paused {
+            animation-play-state: paused;
+          }
         }
       }
     }

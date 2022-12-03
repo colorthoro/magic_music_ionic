@@ -1,10 +1,12 @@
 <template>
   <div class="container">
     <div ref="song" class="song">
-      <div class="song-pic">
-        <img :src="picUrlReciver.url" />
+      <div class="song-pic-wrap">
+        <div class="song-pic">
+          <img :class="{ paused: !playing }" :src="picUrlReciver.url" />
+        </div>
       </div>
-      {{ nowIndex == 0 ? recent?.name : nowSentence }}
+      <span>{{ nowIndex == 0 ? recent?.name : nowSentence }}</span>
     </div>
     <div class="mode">
       <!-- <span class="time">
@@ -135,7 +137,7 @@ export default {
   props: {
     height: {
       type: String,
-      default: "fit-content",
+      default: "55px",
     },
   },
   data() {
@@ -217,47 +219,75 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.container {
+@mixin flex-center($direction: row) {
   display: flex;
+  flex-direction: $direction;
+  align-items: center;
+  justify-content: center;
+}
+@keyframes rotate {
+  0% {
+    transform: rotate(0);
+  }
+
+  100% {
+    transform: rotate(1turn);
+  }
+}
+.container {
   position: relative;
-  justify-content: space-between;
-  height: v-bind("height");
   width: 100%;
-  height: 55px;
+  height: v-bind("height");
   z-index: 99;
+  display: flex;
+  justify-content: space-between;
 }
 .song {
-  display: flex;
   flex: 1;
-  color: gray;
-  align-items: center;
-  padding-left: 1rem;
-  overflow: hidden;
   height: 100%;
-  .song-pic {
-    width: 42px;
-    height: 42px;
+  padding: 0 1rem;
+  overflow: hidden;
+  color: gray;
+  display: flex;
+  align-items: center;
+  // justify-content: space-around;
+  .song-pic-wrap {
     flex-shrink: 0;
-    border-radius: 10px;
-    margin-right: 20px;
-    overflow: hidden;
-    img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      &:hover {
-        filter: blur(5px);
+    width: 45px;
+    height: 45px;
+    margin-right: 10px;
+    border-radius: 50%;
+    background: linear-gradient(-45deg, #070708 5%, #333540cc, #070708 95%);
+    @include flex-center;
+    .song-pic {
+      width: 30px;
+      height: 30px;
+      overflow: hidden;
+      border-radius: 50%;
+      box-shadow: 0 0 10px black;
+      @include flex-center;
+      img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        animation: rotate 20s linear infinite;
+        &.paused {
+          animation-play-state: paused;
+        }
+        &:hover {
+          filter: blur(5px);
+        }
       }
     }
   }
 }
 
 .mode {
-  display: flex;
   flex: 0 0 20%;
+  padding-right: 1rem;
+  display: flex;
   align-items: center;
   justify-content: flex-end;
-  padding-right: 1rem;
 }
 .mode * + * {
   margin-left: 15px;
