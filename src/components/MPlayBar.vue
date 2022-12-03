@@ -196,6 +196,7 @@ export default {
       immediate: true,
       handler() {
         this.losePicUrl(this.picUrlReciver.url);
+        this.picUrlReciver.url = require("@/assets/background.png");
         this.getPicUrl(this.recent, this.picUrlReciver);
       },
     },
