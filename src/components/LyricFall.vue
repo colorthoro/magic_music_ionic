@@ -1,46 +1,37 @@
 <template>
-  <div>
-    <div>
-      <button @click="offsetTime -= 0.5">放慢0.5s</button>
-      <button @click="offsetTime += 0.5">加快0.5s</button>
-      <span>{{ offsetTime }}</span>
-      <button @click="resetLrc()">重置歌词</button>
-      <input type="text" v-model="fillLrc" @change="resetLrc(fillLrc)" />
-    </div>
-    <div class="scroller" ref="scroller">
-      <div class="plate">
-        <div
-          @mouseenter="playing = false"
-          @mouseleave="playing = true"
-          @touchstart="playing = false"
-          @touchend="playing = true"
-          v-for="(row, index) of lrcRows.rows"
-          :class="rowClass(index)"
-          @click="setIndex(index), (playing = true)"
-          :key="index"
-        >
-          {{ row }}
-        </div>
+  <div class="scroller" ref="scroller">
+    <div class="plate">
+      <div
+        @mouseenter="playing = false"
+        @mouseleave="playing = true"
+        @touchstart="playing = false"
+        @touchend="delayGo"
+        v-for="(row, index) of lrcRows.rows"
+        :class="rowClass(index)"
+        @click="setIndex(index), (playing = true)"
+        :key="index"
+      >
+        {{ row }}
       </div>
     </div>
   </div>
 </template>
 
 <script>
-import { mapActions, mapState, mapWritableState } from "pinia";
+import { mapActions, mapState } from "pinia";
 import useLyricStore from "../store/lyric";
+import { debounce } from "throttle-debounce";
 
 export default {
   name: "LyricFall",
   data() {
-    return { playing: true, fillLrc: "" };
+    return { playing: true, fillLrc: "", delayGo: null };
   },
   computed: {
-    ...mapState(useLyricStore, ["lrcRows", "nowIndex", "nowSentence"]),
-    ...mapWritableState(useLyricStore, ["offsetTime"]),
+    ...mapState(useLyricStore, ["lrcRows", "nowIndex"]),
   },
   methods: {
-    ...mapActions(useLyricStore, ["setIndex", "resetLrc"]),
+    ...mapActions(useLyricStore, ["setIndex"]),
     rowClass(index) {
       return ["row", index == this.nowIndex ? "now" : ""];
     },
@@ -62,19 +53,35 @@ export default {
       });
     },
   },
+  mounted() {
+    this.delayGo = debounce(2000, () => {
+      this.playing = true;
+    });
+  },
+  beforeUnmount() {
+    this.delayGo.cancel();
+  },
 };
 </script>
 
 <style scoped>
 .scroller {
-  background: linear-gradient(skyblue, white, skyblue);
-  box-sizing: border-box;
-  height: 10rem;
-  /* width: max-content; */
-  overflow: auto;
-  padding: 5% 5em;
-  font-family: "楷体";
   position: relative;
+  height: 100%;
+  width: 100%;
+  margin: 3rem 0;
+  overflow: auto;
+  font-family: system-ui;
+  color: white;
+  mask-image: linear-gradient(
+    180deg,
+    hsla(0, 0%, 100%, 0),
+    hsla(0, 0%, 100%, 0.3) 15%,
+    #fff 25%,
+    #fff 75%,
+    hsla(0, 0%, 100%, 0.3) 85%,
+    hsla(0, 0%, 100%, 0)
+  );
 }
 
 .scroller::-webkit-scrollbar {
@@ -94,14 +101,7 @@ export default {
 }
 
 .now {
-  font-size: 2em;
+  font-size: 1.2em;
   opacity: 1;
-}
-
-.search {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 8em;
 }
 </style>

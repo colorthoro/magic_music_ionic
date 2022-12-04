@@ -17,6 +17,7 @@
             </div>
           </div>
         </div>
+        <LyricFall class="lrc"></LyricFall>
       </div>
     </ion-content>
   </ion-page>
@@ -27,12 +28,14 @@ import { mapState, mapWritableState, mapActions } from "pinia";
 import usePlayingQStore from "../store/playingQ";
 import useLyricStore from "../store/lyric";
 import usePicsStore from "../store/pics";
+import LyricFall from "@/components/LyricFall.vue";
 import { IonPage, IonContent } from "@ionic/vue";
 export default {
   name: "PlayCenter",
   components: {
     IonPage,
     IonContent,
+    LyricFall,
   },
   data() {
     return {
@@ -95,32 +98,45 @@ ion-content::part(background)::before {
   background-color: rgba(0, 0, 0, 0.075);
 }
 
-$img-left-padding: 36px;
-$img-outer-border-d: 312px;
-$img-outer-d: 300px;
-@keyframes rotate {
-  0% {
-    transform: rotate(0);
-  }
-
-  100% {
-    transform: rotate(1turn);
-  }
-}
-@mixin round($d) {
-  width: $d;
-  height: $d;
-  border-radius: 50%;
-}
-@mixin flex-center($direction: row) {
+.container {
+  height: 100%;
+  width: 100%;
   display: flex;
-  flex-direction: $direction;
+  flex-direction: column;
+  justify-content: space-between;
   align-items: center;
-  justify-content: center;
+}
+.lrc {
+  flex: 1;
 }
 .disc {
-  position: relative;
+  $img-left-padding: 36px;
+  $img-outer-border-d: 312px;
+  $img-outer-d: 300px;
+  @keyframes rotate {
+    0% {
+      transform: rotate(0);
+    }
+
+    100% {
+      transform: rotate(1turn);
+    }
+  }
+  @mixin round($d) {
+    width: $d;
+    height: $d;
+    border-radius: 50%;
+  }
+  @mixin flex-center($direction: row) {
+    display: flex;
+    flex-direction: $direction;
+    align-items: center;
+    justify-content: center;
+  }
+
+  flex: 0 0 auto;
   padding: 80px $img-left-padding 0 $img-left-padding;
+  position: relative;
 
   $support-d: 30px;
   $support-d-half: $support-d / 2;
@@ -175,8 +191,5 @@ $img-outer-d: 300px;
       }
     }
   }
-}
-.container {
-  @include flex-center;
 }
 </style>
