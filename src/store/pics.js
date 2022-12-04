@@ -7,7 +7,7 @@ export default defineStore('pics', {  // 避免重复创建歌曲图片对象
         defaultPicUrl: require("@/assets/background.png"),
         defaultIds: [],
         nextId: 1,
-        cacheSize: 5,
+        cacheSize: 20,
     }),
     getters: {
         picInfo: (state) => (id, add = true) => {
@@ -41,7 +41,6 @@ export default defineStore('pics', {  // 避免重复创建歌曲图片对象
                 this.clear();
             }
             urlP.then(url => {
-                console.log(url);
                 if (rId === reciver.id) {  // reciver被弃用前把id删除，就不会再进行赋值
                     if (reciver.url === url) return; // 若reciver原有一样的url，则不再递交url
                     reciver.url = url;
