@@ -4,7 +4,7 @@ export default defineStore('pics', {  // 避免重复创建歌曲图片对象
     state: () => ({
         pics: new Map(),  // picObjId -> {urlP, cnt} 
         url2id: new Map(), // url -> picObjId
-        defaultPicUrl: require("@/assets/background.png"),
+        defaultPicUrl: require("@/assets/background_square.jpg"),
         defaultIds: [],
         nextId: 1,
         cacheSize: 20,

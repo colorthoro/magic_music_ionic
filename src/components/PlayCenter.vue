@@ -11,9 +11,7 @@
           />
           <div class="img-outer-border" ref="disc">
             <div class="img-outer" ref="discRotate">
-              <div class="img-wrap">
-                <img :class="{ paused: !playing }" :src="picUrlReciver.url" />
-              </div>
+              <div class="img-wrap" :class="{ paused: !playing }"></div>
             </div>
           </div>
         </div>
@@ -39,7 +37,7 @@ export default {
   },
   data() {
     return {
-      picUrlReciver: { id: 0, url: require("@/assets/background.png") },
+      picUrlReciver: { id: 0, url: require("@/assets/background_square.jpg") },
     };
   },
   computed: {
@@ -64,7 +62,6 @@ export default {
       immediate: true,
       handler() {
         this.losePicUrl(this.picUrlReciver.url);
-        this.picUrlReciver.url = require("@/assets/background.png");
         this.getPicUrl(this.recent, this.picUrlReciver);
       },
     },
@@ -173,20 +170,26 @@ ion-content::part(background)::before {
       @include round($img-outer-d);
       @include flex-center;
       background: #000;
-      background: linear-gradient(45deg, #333540, #070708, #333540);
+      background: linear-gradient(
+          45deg,
+          #09090999 0,
+          40%,
+          #68686868 50%,
+          60%,
+          #09090999 100%
+        ),
+        repeating-radial-gradient(#090909 1px, #000000dd 3px, #090909 4px);
       .img-wrap {
         width: 200px;
         height: 200px;
         flex-shrink: 0;
-        img {
-          box-shadow: 0 0 10px black;
-          width: 100%;
-          height: 100%;
-          border-radius: 50%;
-          animation: rotate 20s linear infinite;
-          &.paused {
-            animation-play-state: paused;
-          }
+        background: v-bind("`url(${picUrlReciver.url})`") center/cover;
+        border: 3.9px solid #090909;
+        border-radius: 50%;
+        box-sizing: content-box;
+        animation: rotate 20s linear infinite;
+        &.paused {
+          animation-play-state: paused;
         }
       }
     }
