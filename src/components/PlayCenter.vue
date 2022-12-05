@@ -3,7 +3,7 @@
     <ion-content fullscreen :scroll-y="false">
       <div class="container">
         <div class="disc">
-          <img class="play-bar-support" src="@/assets/play-bar-support.png" />
+          <div class="play-bar-support" />
           <img
             :class="{ playing }"
             class="play-bar"
@@ -135,7 +135,7 @@ ion-content::part(background)::before {
   padding: 80px $img-left-padding 0 $img-left-padding;
   position: relative;
 
-  $support-d: 30px;
+  $support-d: 25px;
   $support-d-half: $support-d / 2;
   .play-bar-support {
     position: absolute;
@@ -144,12 +144,15 @@ ion-content::part(background)::before {
     width: $support-d;
     height: $support-d;
     z-index: 2;
+    border-radius: 50%;
+    background: radial-gradient(#80808080 5px, #ffffff80 5px),
+      linear-gradient(rgb(52, 52, 52), white);
   }
 
   .play-bar {
     position: absolute;
-    top: 0;
-    left: $img-left-padding + $img-outer-border-d / 2 - 6px;
+    top: 2px;
+    left: $img-left-padding + $img-outer-border-d / 2 - 5px;
     width: 100px;
     z-index: 1;
     transform-origin: 0 0;
