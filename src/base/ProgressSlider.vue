@@ -40,7 +40,6 @@ export default {
       remainPlayState: undefined,
       onBar: false,
       dragEffect: false,
-      timeOut: null,
     };
   },
   props: {
@@ -117,28 +116,6 @@ export default {
         if (this.onDrag) this.safeOnDrag();
         this.setX(e.touches[0].clientX);
       }
-      if (e instanceof MouseEvent) {
-        let mousemove = document.onmousemove,
-          mouseup = document.onmouseup;
-        this.dragEffect = true;
-        if (this.timeOut) clearTimeout(this.timeOut);
-        document.onmousemove = (me) => {
-          me.preventDefault();
-          if (this.onDrag) this.safeOnDrag();
-          this.setX(me.clientX);
-        };
-        document.onmouseup = (ue) => {
-          ue.preventDefault;
-          if (this.afterDrag) this.afterDrag(this.remainPlayState);
-          document.onmousemove = mousemove;
-          document.onmouseup = mouseup;
-          this.timeOut = setTimeout(() => {
-            this.dragEffect = false;
-            this.timeOut = null;
-            console.log("dragEffect off");
-          }, 3000);
-        };
-      }
     },
   },
   watch: {
@@ -147,7 +124,7 @@ export default {
     },
   },
   beforeUnmount() {
-    if (this.timeout) clearTimeout(this.timeout);
+    this.safeOnDrag.cancel();
   },
 };
 </script>

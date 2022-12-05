@@ -25,10 +25,13 @@ import { debounce } from "throttle-debounce";
 export default {
   name: "LyricFall",
   data() {
-    return { playing: true, fillLrc: "", delayGo: null };
+    return { playing: true, fillLrc: "" };
   },
   computed: {
     ...mapState(useLyricStore, ["lrcRows", "nowIndex"]),
+    delayGo() {
+      return debounce(2000, () => (this.playing = true));
+    },
   },
   methods: {
     ...mapActions(useLyricStore, ["setIndex"]),
@@ -52,11 +55,6 @@ export default {
         });
       });
     },
-  },
-  mounted() {
-    this.delayGo = debounce(2000, () => {
-      this.playing = true;
-    });
   },
   beforeUnmount() {
     this.delayGo.cancel();

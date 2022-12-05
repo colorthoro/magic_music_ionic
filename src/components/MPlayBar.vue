@@ -89,7 +89,7 @@
         trigger="click"
         :hide-after="0"
         transition="el-zoom-in-bottom"
-        :persistent="false"
+        :persistent="true"
         @before-enter="mountList"
         @hide="unmountList"
       >
@@ -127,6 +127,7 @@ import usePicsStore from "../store/pics";
 import ProgressSlider from "../base/ProgressSlider.vue";
 import PlayList from "./PlayList.vue";
 import Hammer from "hammerjs";
+import { debounce } from "throttle-debounce";
 
 export default {
   name: "MPlayBar",
@@ -142,9 +143,9 @@ export default {
   },
   data() {
     return {
-      timeout: null,
+      mc: null, // hammerjs manager
       callPlayList: false,
-      picUrlReciver: { id: 0, url: require("@/assets/background.png") },
+      picUrlReciver: { id: 0, url: require("@/assets/background_square.jpg") },
     };
   },
   computed: {
@@ -176,18 +177,25 @@ export default {
         if (this.audio) this.audio.currentTime = val;
       },
     },
+    panHandler() {
+      return debounce(
+        500,
+        (e) => {
+          if (e.additionalEvent === "panleft") this.next();
+          else if (e.additionalEvent === "panright") this.last();
+        },
+        { atBegin: true }
+      );
+    },
+    unmountList() {
+      return debounce(3000, () => (this.callPlayList = false));
+    },
   },
   methods: {
     ...mapActions(usePlayingQStore, ["onOff", "next", "last"]),
     ...mapActions(usePicsStore, ["getPicUrl", "losePicUrl"]),
-    unmountList() {
-      this.timeout = setTimeout(() => (this.callPlayList = false), 3000);
-    },
     mountList() {
-      if (this.timeout) {
-        clearTimeout(this.timeout);
-        this.timeout = null;
-      }
+      this.unmountList.cancel({ upcomingOnly: true });
       this.callPlayList = true;
     },
   },
@@ -196,25 +204,23 @@ export default {
       immediate: true,
       handler() {
         this.losePicUrl(this.picUrlReciver.url);
-        this.picUrlReciver.url = require("@/assets/background.png");
         this.getPicUrl(this.recent, this.picUrlReciver);
       },
     },
   },
   mounted() {
-    let mc = new Hammer.Manager(this.$refs.song);
-    mc.add(
-      new Hammer.Pan({ direction: Hammer.DIRECTION_HORIZONTAL, threshold: 80 })
+    // 左右滑动切歌
+    this.mc = new Hammer.Manager(this.$refs.song);
+    this.mc.add(
+      new Hammer.Pan({ direction: Hammer.DIRECTION_HORIZONTAL, threshold: 10 })
     );
-    mc.on("pan", (e) => {
-      if (e.additionalEvent === "panleft") this.next();
-      else if (e.additionalEvent === "panright") this.last();
-    });
-    console.log(mc);
+    this.mc.on("pan", this.panHandler);
   },
   beforeUnmount() {
     delete this.picUrlReciver.id;
-    clearTimeout(this.timeout);
+    this.mc?.destroy();
+    this.panHandler.cancel();
+    this.unmountList.cancel();
   },
 };
 </script>
@@ -258,7 +264,14 @@ export default {
     height: 45px;
     margin-right: 10px;
     border-radius: 50%;
-    background: linear-gradient(-45deg, #070708 5%, #333540cc, #070708 95%);
+    background: linear-gradient(
+      45deg,
+      #090909c9 0,
+      45%,
+      #525252c9 50%,
+      55%,
+      #090909c9 100%
+    );
     @include flex-center;
     .song-pic {
       width: 30px;
