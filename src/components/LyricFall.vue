@@ -8,8 +8,9 @@
         @touchend="delayGo"
         v-for="(row, index) of lrcRows.rows"
         :class="rowClass(index)"
-        @click="setIndex(index), (playing = true)"
+        @click="setIndex(index), delayGo()"
         :key="index"
+        @transitionstart.stop="autoScroll($event)"
       >
         {{ row }}
       </div>
@@ -38,21 +39,17 @@ export default {
     rowClass(index) {
       return ["row", index == this.nowIndex ? "now" : ""];
     },
-  },
-  watch: {
-    nowIndex() {
-      this.$nextTick(() => {
-        let now = document.querySelector(".now"); // index 更新时 .now 还没更新，放在 nextTick 中才不会获取到旧的 now。
-        if (!now || !this.playing) return;
-        // now.scrollIntoView({ behavior: "smooth", block: "center" });  // 不要用 scrollIntoView，因为它会把整个页面都移动。
-        this.$refs.scroller.scrollTo({
-          left: 0,
-          top:
-            now.offsetTop -
-            this.$refs.scroller.clientHeight / 2 +
-            now.clientHeight / 2,
-          behavior: "smooth",
-        });
+    autoScroll(e) {
+      e.preventDefault();
+      if (!this.playing) return;
+      let now = e.target;
+      this.$refs.scroller.scrollTo({
+        left: 0,
+        top:
+          now.offsetTop -
+          this.$refs.scroller.clientHeight / 2 +
+          now.clientHeight / 2,
+        behavior: "smooth",
       });
     },
   },
@@ -96,10 +93,12 @@ export default {
   line-height: 2em;
   text-align: center;
   opacity: 0.5;
+  transition: transform 0.2s;
 }
 
 .now {
-  font-size: 1.2em;
+  /* font-size: 1.2em; */
+  transform: scale(1.2);
   opacity: 1;
 }
 </style>
