@@ -60,7 +60,7 @@ const useSongListsStore = defineStore('songLists', {
                     } else if (newSong.tags.indexOf(listName) === -1) {
                         newSong.tags.push(listName);
                     }
-                    console.log('put', newSong.name, 'into', listName);
+                    // console.log('put', newSong.name, 'into', listName);
                     this.lists.allSongs.set(newSong.file_id, newSong);
                     this.lists.binSongs.delete(newSong.file_id);
                     k++;
@@ -70,9 +70,13 @@ const useSongListsStore = defineStore('songLists', {
             });
             return k;
         },
-        delFromList(songs, listName) {
+        async delFromList(songs, listName) {
             let targetList = this.targetList(listName);
             if (!targetList) return;
+            if (targetList === this.lists.allSongs) {
+                await this.syncTags(songs, ['allSongs'], true);
+                // 从 全部 中删除歌曲时，先从其它歌单删除。
+            }
             let k = 0;
             songs.forEach(song => {
                 if (!targetList.has(song.file_id)) return;
@@ -84,7 +88,7 @@ const useSongListsStore = defineStore('songLists', {
                     song.del();
                 }
                 song.tags = song.tags.filter(tag => tag !== listName);
-                console.log('del ', song.name, 'from ', listName);
+                // console.log('del ', song.name, 'from ', listName);
                 targetList.delete(song.file_id);
                 k++;
             });
@@ -94,11 +98,20 @@ const useSongListsStore = defineStore('songLists', {
             let targetList = this.targetList(listName);
             if (!targetList) return false;
             let confirm = window.confirm(`确认清空 ${listName} 吗？`);
+            if (confirm && targetList === this.lists.allSongs) {
+                confirm = window.confirm('清空 全部 将会清空所有歌单，确定吗？');
+            }
             if (!confirm) return false;
-            targetList.forEach(song => {
+            if (targetList === this.lists.allSongs) {
+                this.allLists.forEach(listName => {
+                    if (listName !== 'binSongs')
+                        this.$state.lists[listName] = new Map();
+                });
+                targetList.forEach(song => { song.tags = []; });
+            } else targetList.forEach(song => {
                 song.tags = song.tags.filter(tag => tag !== listName);
             });
-            this.$state[listName] = new Map();
+            this.$state.lists[listName] = new Map();
             return true;
         },
         async getAllSongsFromCloud() {
@@ -106,11 +119,12 @@ const useSongListsStore = defineStore('songLists', {
             this.putIntoList(res, 'allSongs');
         },
         addNewList(listName = 'test') {
-            console.log('addNewList', listName);
+            // console.log('addNewList', listName);
             this.$state.lists[listName] = new Map();
-            console.log(this.$state.lists);
+            // console.log(this.$state.lists);
         },
         delList(listName) {
+            if (this.isInnerList(listName)) return;
             let targetList = this.targetList(listName);
             if (!targetList) return false;
             let confirm = window.confirm(`确认删除 ${listName} 吗？`);
@@ -123,19 +137,19 @@ const useSongListsStore = defineStore('songLists', {
         },
         async syncTags(songs, newTags, needCut = false) {
             songs.forEach(song => {
-                console.log('syncing', song.name, newTags);
+                // console.log('syncing', song.name, newTags);
                 let added = newTags.filter(tag => song.tags.indexOf(tag) === -1);
-                console.log('added', added);
+                // console.log('added', added);
                 added.forEach(tag => {
                     this.putIntoList([song], tag);
                 });
                 if (!needCut) return;
                 let cut = song.tags.filter(tag => newTags.indexOf(tag) === -1);
-                console.log('cut', cut);
+                // console.log('cut', cut);
                 cut.forEach(tag => {
                     this.delFromList([song], tag);
                 });
-                console.log('sync tags ok', song.name, song.tags);
+                // console.log('sync tags ok', song.name, song.tags);
             });
         },
         callModifyDialog(songs) {
