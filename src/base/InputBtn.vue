@@ -33,9 +33,9 @@ export default {
   },
   emits: ["res"],
   watch: {
-    showBtn(newV) {
+    showBtn() {
       this.$nextTick(() => {
-        if (!newV) this.$refs.input.focus();
+        if (!this.showBtn) this.$refs.input.focus();
       });
     },
   },

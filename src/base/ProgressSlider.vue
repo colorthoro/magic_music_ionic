@@ -4,8 +4,6 @@
       <div
         class="progress-bar"
         ref="progressBar"
-        @mouseenter="onBar = true"
-        @mouseleave="onBar = false"
         @click="this.setX($event.clientX)"
       >
         <div class="bar-inner">
@@ -17,8 +15,8 @@
               >
                 <div
                   class="progress-btn"
-                  v-show="!disabled && showProgressBtn"
-                  @mousedown="dragSet($event)"
+                  :class="{ dragging }"
+                  v-show="!disabled"
                   @touchstart="dragSet($event)"
                   @touchmove="dragSet($event)"
                   @touchend="dragSet($event)"
@@ -38,8 +36,7 @@ export default {
   data() {
     return {
       remainPlayState: undefined,
-      onBar: false,
-      dragEffect: false,
+      dragging: false,
     };
   },
   props: {
@@ -91,9 +88,6 @@ export default {
         if (update !== this.modelValue) this.$emit("update:modelValue", update);
       },
     },
-    showProgressBtn() {
-      return this.isMobile() || this.onBar || this.dragEffect;
-    },
   },
   methods: {
     setX(x) {
@@ -105,12 +99,14 @@ export default {
     dragSet(e) {
       if (this.disabled) return;
       e.preventDefault();
-      if (e.type === "touchstart" || e.type === "mousedown") {
+      if (e.type === "touchstart") {
         console.log("touchstart");
         if (this.beforeDrag) this.remainPlayState = this.beforeDrag();
+        this.dragging = true;
       } else if (e.type === "touchend") {
         console.log("touchend");
         if (this.afterDrag) this.afterDrag(this.remainPlayState);
+        this.dragging = false;
       } else if (e.type === "touchmove") {
         console.log("touchmove");
         if (this.onDrag) this.safeOnDrag();
@@ -154,12 +150,16 @@ export default {
             right: 0;
             transform: translate(50%, -50%);
             .progress-btn {
-              box-sizing: border-box;
               width: 16px;
               height: 16px;
-              border: 3px solid white;
+              border: 2px solid white;
               border-radius: 50%;
               background: red;
+              transition: transform 0.2s ease;
+              transform: scale(0.8);
+            }
+            .dragging {
+              transform: scale(1.2);
             }
           }
         }

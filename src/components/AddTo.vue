@@ -6,6 +6,7 @@
     width="90%"
     align-center
     center
+    append-to-body
   >
     <el-scrollbar max-height="40vh">
       <el-checkbox-group class="vertical-center-flex" v-model="checkedList">
@@ -16,6 +17,9 @@
           border
         >
           {{ isInnerList(list) || list }}
+        </el-checkbox>
+        <el-checkbox disabled border>
+          <InputBtn text="点击新建歌单" @res="addNewList"></InputBtn>
         </el-checkbox>
       </el-checkbox-group>
     </el-scrollbar>
@@ -49,7 +53,11 @@
 <script>
 import { mapState, mapActions } from "pinia";
 import useSongListsStore from "../store/songLists";
+import InputBtn from "@/base/InputBtn.vue";
 export default {
+  components: {
+    InputBtn,
+  },
   data() {
     return {
       moving: false,
@@ -61,6 +69,7 @@ export default {
       "addableLists",
       "isInnerList",
       "modifyDialog",
+      "addNewList",
     ]),
     visible: {
       get() {
@@ -89,11 +98,11 @@ export default {
     },
   },
   watch: {
-    visible(newV) {
-      if (newV) {
-        this.modifyDialog.need &&
-          this.modifyDialog.targetSongs.length === 1 &&
-          (this.checkedList = [...this.modifyDialog.targetSongs[0].tags]);
+    visible() {
+      if (this.visible) {
+        if (this.modifyDialog.targetSongs.length === 1) {
+          this.checkedList = [...this.modifyDialog.targetSongs[0].tags];
+        } else this.checkedList = [];
       }
     },
   },

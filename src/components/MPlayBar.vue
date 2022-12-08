@@ -2,7 +2,7 @@
   <div class="container">
     <div ref="song" class="song">
       <div class="song-pic-wrap">
-        <div class="song-pic">
+        <div class="song-pic" @click="$router.push('/player')">
           <img :class="{ paused: !playing }" :src="picUrlReciver.url" />
         </div>
       </div>
@@ -287,9 +287,6 @@ export default {
         animation: rotate 20s linear infinite;
         &.paused {
           animation-play-state: paused;
-        }
-        &:hover {
-          filter: blur(5px);
         }
       }
     }

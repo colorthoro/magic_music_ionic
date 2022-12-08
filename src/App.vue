@@ -18,3 +18,40 @@ export default {
   },
 };
 </script>
+<style lang="scss">
+ion-content {
+  --padding-top: 2rem;
+}
+ion-header + ion-content {
+  --padding-top: 0;
+}
+ion-header {
+  padding-top: 2rem;
+  height: fit-content;
+}
+.head {
+  height: 4.5em;
+  display: flex;
+  align-items: center;
+  .icon-wrap {
+    flex: 0 0 3rem;
+    height: 3rem;
+    width: 3rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    .icon {
+      color: white;
+      height: 1.5rem;
+    }
+  }
+  .title {
+    flex: 1;
+    overflow: hidden;
+    font-size: 1.5rem;
+    color: white;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+}
+</style>

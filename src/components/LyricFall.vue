@@ -65,6 +65,7 @@ export default {
   height: 100%;
   width: 100%;
   margin: 3rem 0;
+  padding: 0 3.5rem;
   overflow: auto;
   font-family: system-ui;
   color: white;
