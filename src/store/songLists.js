@@ -120,6 +120,7 @@ const useSongListsStore = defineStore('songLists', {
         },
         addNewList(listName = 'test') {
             // console.log('addNewList', listName);
+            if (this.$state.lists[listName]) return;
             this.$state.lists[listName] = new Map();
             // console.log(this.$state.lists);
         },
