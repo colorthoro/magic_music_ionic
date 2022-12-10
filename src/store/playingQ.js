@@ -178,6 +178,15 @@ export default defineStore('playingQ', {
             this._audioSafePause = debounce(50, audio.pause.bind(audio), { atBegin: true });
         },
         async _play(songOrSongs, offline = false) {
+            // 确定歌曲，避免重复
+            songOrSongs && this._addToPlaying(songOrSongs);
+            let targetSong = this.nowToPlay;
+            if (!targetSong) { console.error('请先选择歌曲吧！'); return; }
+            if (this.fetching && this.lastFetching === targetSong) {
+                console.log('Fetching the song, please wait...');
+                return;
+            }
+
             // 准备audio
             if (!(this.audio instanceof Audio)) {
                 var audio = new Audio();
@@ -186,15 +195,6 @@ export default defineStore('playingQ', {
             } else if (this.audio.src && !this.paused) {
                 this.audio.pause();
                 URL.revokeObjectURL(this.audio.src);
-            }
-
-            // 确定歌曲，避免重复
-            songOrSongs && this._addToPlaying(songOrSongs);
-            let targetSong = this.nowToPlay;
-            if (!targetSong) { console.error('请先选择歌曲吧！'); return; }
-            if (this.fetching && this.lastFetching === targetSong) {
-                console.log('Fetching the song, please wait...');
-                return;
             }
 
             // 下载歌曲
