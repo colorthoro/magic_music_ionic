@@ -1,13 +1,14 @@
 <template>
   <div class="nav">
     <!-- 标题列表 -->
-    <div class="nav-list" @scroll="update">
+    <div class="nav-list" ref="scroller" @scroll="update">
       <div
         v-for="(title, index) in titles"
         :key="index"
         :ref="'title' + index"
         :class="{ active: index === activeIndex }"
         @click="changeTitle(index)"
+        @dblclick="dbclickHandler(title)"
       >
         {{ titleDecorated(title) }}
       </div>
@@ -38,6 +39,10 @@ export default {
     activeTitle: {
       type: String,
       default: "",
+    },
+    dbclickHandler: {
+      type: Function,
+      default: console.log,
     },
   },
   emits: ["update:activeTitle"],
@@ -84,9 +89,18 @@ export default {
   },
   watch: {
     activeIndex() {
-      this.setUnderLine(
-        this.$refs["title" + this.activeIndex][0].getBoundingClientRect()
-      );
+      let now = this.$refs["title" + this.activeIndex][0];
+      let rect = now.getBoundingClientRect();
+      if (rect.left < 0 || rect.right > innerWidth + 10) {
+        this.$refs.scroller.scrollTo({
+          top: 0,
+          left:
+            now.offsetLeft -
+            this.$refs.scroller.clientWidth / 2 +
+            now.clientWidth / 2,
+          behavior: "smooth",
+        });
+      } else this.setUnderLine(rect);
     },
   },
   mounted() {
@@ -112,6 +126,9 @@ export default {
     font-weight: bold;
     white-space: nowrap;
     color: gray;
+    &::-webkit-scrollbar {
+      display: none;
+    }
     & > div {
       padding: 0 1rem;
     }

@@ -44,6 +44,8 @@ export default {
       startIndex: 0, // index of the first showing item
       listTranslateY: 0,
       checkedList: new Set(),
+      gradualCnt: 0,
+      interval: null,
     };
   },
   props: {
@@ -64,6 +66,10 @@ export default {
       default: 60,
     },
     showIndex: {
+      type: Boolean,
+      default: true,
+    },
+    showLine: {
       type: Boolean,
       default: true,
     },
@@ -91,7 +97,7 @@ export default {
     listShowing() {
       return this.list.slice(
         this.startIndex,
-        this.startIndex + this.itemCnt + 1
+        this.startIndex + this.gradualCnt + 1
       );
     },
   },
@@ -148,12 +154,26 @@ export default {
       },
     },
   },
+  mounted() {
+    this.interval = setInterval(() => {
+      if (this.gradualCnt < this.itemCnt) {
+        this.gradualCnt++;
+      } else if (this.gradualCnt > this.itemCnt) {
+        this.gradualCnt--;
+      } else clearInterval(this.interval);
+    }, 0);
+  },
+  beforeUnmount() {
+    this.interval && clearInterval(this.interval);
+  },
 };
 </script>
 
 <style lang="scss" scoped>
 .item {
-  border-bottom: 1px solid var(--el-border-color-light);
+  border-bottom: v-bind(
+    "showLine ? '1px solid var(--el-border-color-light)' : '' "
+  );
   display: flex;
   align-items: center;
   .item-index {

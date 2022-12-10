@@ -54,4 +54,14 @@ ion-header {
     text-overflow: ellipsis;
   }
 }
+.empty-bg {
+  height: 100px;
+  width: 100px;
+  background: url("@/assets/no-results.png") center/cover;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 100;
+}
 </style>

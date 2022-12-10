@@ -85,7 +85,7 @@
       </div> -->
       <el-popover
         placement="top-start"
-        width="90vw"
+        width="80vw"
         trigger="click"
         :hide-after="0"
         transition="el-zoom-in-bottom"
@@ -103,7 +103,7 @@
             </font-awesome-icon>
           </div>
         </template>
-        <PlayList style="height: 65vh" v-if="callPlayList" />
+        <PlayList style="height: 55vh" v-if="callPlayList" />
       </el-popover>
     </div>
     <!-- 进度条 -->

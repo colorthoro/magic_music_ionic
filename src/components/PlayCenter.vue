@@ -87,6 +87,7 @@
                 icon="fa-solid fa-ellipsis-vertical"
                 class="red-hover"
                 style="height: 1.5rem"
+                @click="moreFunc(recent)"
               />
               <font-awesome-icon
                 icon="fa-solid fa-up-right-and-down-left-from-center"
@@ -110,7 +111,12 @@ import useSongListsStore from "@/store/songLists";
 import usePicsStore from "../store/pics";
 import LyricFall from "@/components/LyricFall.vue";
 import PlayBar from "@/components/PlayBar.vue";
-import { IonPage, IonContent, IonHeader } from "@ionic/vue";
+import {
+  IonPage,
+  IonContent,
+  IonHeader,
+  actionSheetController,
+} from "@ionic/vue";
 export default {
   name: "PlayCenter",
   components: {
@@ -147,11 +153,50 @@ export default {
   methods: {
     ...mapActions(usePlayingQStore, ["onOff", "next", "last"]),
     ...mapActions(usePicsStore, ["getPicUrl", "losePicUrl"]),
-    ...mapActions(useSongListsStore, ["delFromList", "putIntoList"]),
+    ...mapActions(useSongListsStore, [
+      "delFromList",
+      "putIntoList",
+      "callModifyDialog",
+    ]),
     async fetchAndUpdate() {
       if (!this.recent) return;
       await this.recent?.fetch();
       this.existed = !!(await this.recent?.existed());
+    },
+    async moreFunc(songOrSongs) {
+      let name = "未知歌曲";
+      let songs = [];
+      if (songOrSongs instanceof Array) {
+        name = songOrSongs[0]?.name + " 等";
+        songs = songOrSongs;
+      } else {
+        name = songOrSongs.name;
+        songs = [songOrSongs];
+      }
+      const actionSheet = await actionSheetController.create({
+        header: name,
+        subHeader: "请选择操作",
+        buttons: [
+          {
+            text: "删除",
+            role: "destructive",
+            handler: () => this.delFromList(songs, this.activeListName),
+          },
+          {
+            text: "收藏到歌单",
+            handler: () => this.callModifyDialog(songs),
+          },
+          {
+            text: "取消",
+            role: "cancel",
+            data: {
+              action: "cancel",
+            },
+          },
+        ],
+      });
+      await actionSheet.present();
+      await actionSheet.onDidDismiss();
     },
   },
   watch: {

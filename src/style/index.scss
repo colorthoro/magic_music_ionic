@@ -65,7 +65,7 @@ li {
 
 .red-hover {
     &:active {
-        color: var(--el-color-primary);
+        color: var(--el-color-primary) !important;
     }
 }
 

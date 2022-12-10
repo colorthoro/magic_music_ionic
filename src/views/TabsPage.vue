@@ -2,7 +2,12 @@
   <ion-page>
     <ion-tabs>
       <ion-router-outlet></ion-router-outlet>
-      <MPlayBar></MPlayBar>
+      <transition
+        enter-active-class="animate__animated animate__slideInUp animate__faster"
+        leave-active-class="animate__animated animate__slideOutDown animate__faster"
+      >
+        <MPlayBar></MPlayBar>
+      </transition>
       <ion-tab-bar slot="bottom">
         <ion-tab-button tab="tab1" href="/tabs/tab1">
           <ion-icon :icon="triangle" />

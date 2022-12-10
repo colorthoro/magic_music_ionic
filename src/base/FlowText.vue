@@ -1,11 +1,5 @@
 <template>
-  <div
-    class="outer"
-    ref="outer"
-    @mouseenter.once="setSpeed()"
-    @mouseover="go = true"
-    @mouseleave="go = false"
-  >
+  <div class="outer" ref="outer">
     <div :class="{ inner: 1, flow: need && go }" ref="inner" :content="text">
       <span>{{ text }}</span>
     </div>

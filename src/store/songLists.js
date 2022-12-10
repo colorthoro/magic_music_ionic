@@ -124,11 +124,11 @@ const useSongListsStore = defineStore('songLists', {
             this.$state.lists[listName] = new Map();
             // console.log(this.$state.lists);
         },
-        delList(listName) {
+        delList(listName, silence = false) {
             if (this.isInnerList(listName)) return;
             let targetList = this.targetList(listName);
             if (!targetList) return false;
-            let confirm = window.confirm(`确认删除 ${listName} 吗？`);
+            let confirm = silence || window.confirm(`确认删除 ${listName} 吗？`);
             if (!confirm) return false;
             targetList.forEach(song => {
                 song.tags = song.tags.filter(tag => tag !== listName);

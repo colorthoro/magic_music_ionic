@@ -18,9 +18,12 @@
             if (del) del(song);
           },
         },
-        plus: { need: true, func: () => callModifyDialog([song]) },
+        plus: { need: modiAble, func: () => callModifyDialog([song]) },
         more: {
-          need: true,
+          need: moreAble,
+          func: () => {
+            if (moreFunc) moreFunc(song);
+          },
         },
         heart: {
           need: true,
@@ -72,6 +75,18 @@ export default {
     delAble: {
       type: Boolean,
       default: true,
+    },
+    modiAble: {
+      type: Boolean,
+      default: true,
+    },
+    moreAble: {
+      type: Boolean,
+      default: true,
+    },
+    moreFunc: {
+      type: Function,
+      default: null,
     },
     del: {
       type: Function,
@@ -128,9 +143,6 @@ export default {
   color: var(--netease-number-color);
 }
 .song-item :deep(.addons) {
-  display: none;
-}
-.song-item:hover :deep(.addons) {
   display: inline-block;
 }
 </style>

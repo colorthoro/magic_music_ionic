@@ -5,6 +5,8 @@ const app = createApp(App);
 
 import { IonicVue } from '@ionic/vue';
 app.use(IonicVue);
+import { StatusBar } from '@capacitor/status-bar';
+StatusBar.setOverlaysWebView({ overlay: true });
 
 /* Core CSS required for Ionic components to work properly */
 import '@ionic/vue/css/core.css';
@@ -32,6 +34,10 @@ app.use(ElementPlus);
 
 /** Animate.css */
 import 'animate.css';
+
+/** swiperjs */
+import 'swiper/css';
+import 'swiper/css/virtual';
 
 /** 自定义scss */
 import '@/style/index.scss';
@@ -99,6 +105,12 @@ import {
   faCloudArrowDown,  // 云下载
   faEllipsisVertical,
   faCrosshairs,
+  faUpRightAndDownLeftFromCenter,
+  faDownLeftAndUpRightToCenter,
+  faHeart as faSolidHeart,
+  faCircleCheck,
+  faChevronLeft,
+  faChevronDown
 } from '@fortawesome/free-solid-svg-icons'
 import {
   faCircleXmark,
@@ -109,10 +121,11 @@ library.add(
   faBackwardStep, faForwardStep,
   faRepeat, fa1, faShuffle,
   faVolumeXmark, faVolumeOff, faVolumeLow, faVolumeHigh,
-  faBars, faHeart, faCircleXmark, faXmark,
+  faBars, faHeart, faSolidHeart, faCircleXmark, faXmark,
   faPlus, faCirclePlus, faTrashArrowUp, faListCheck,
-  faCheck, faCloudArrowDown, faEllipsisVertical,
-  faCrosshairs
+  faCheck, faCircleCheck, faCloudArrowDown, faEllipsisVertical,
+  faCrosshairs, faUpRightAndDownLeftFromCenter,
+  faDownLeftAndUpRightToCenter, faChevronLeft, faChevronDown,
 );
 app.component('font-awesome-icon', FontAwesomeIcon)
   .component('font-awesome-layers', FontAwesomeLayers)

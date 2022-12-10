@@ -7,7 +7,7 @@
       >
         播放列表
       </span>
-      <span style="color: var(--netease-number-color)">|</span>
+      <span style="color: var(--netease-number-color)"> | </span>
       <span
         :class="{ 'active-black': listOrHistory === 2 }"
         @click="listOrHistory = 2"
@@ -24,9 +24,18 @@
             id_field="file_id"
             :needCheck="false"
             ref="playing-vlist"
+            :itemHeight="50"
+            :showStripe="true"
+            :showLine="false"
           >
             <template #default="{ item: song }">
-              <SongItem :song="song" :del="del" />
+              <SongItem
+                :song="song"
+                :del="del"
+                :modiAble="false"
+                :moreAble="false"
+                :delAble="false"
+              />
             </template>
           </VirtualList>
         </template>
@@ -45,9 +54,18 @@
             :list="historyList"
             id_field="file_id"
             :needCheck="false"
+            :itemHeight="30"
+            :showStripe="true"
+            :showLine="false"
           >
             <template #default="{ item: song }">
-              <SongItem :song="song" :showCnt="true" :delAble="false" />
+              <SongItem
+                :song="song"
+                :showCnt="true"
+                :delAble="false"
+                :modiAble="false"
+                :moreAble="false"
+              />
             </template>
           </VirtualList>
         </template>
@@ -83,10 +101,18 @@ export default {
   flex-direction: column;
   justify-content: space-around;
   align-items: center;
+  .head {
+    flex: 0 0 10%;
+    font-size: 1.2rem;
+    span {
+      margin-right: 10px;
+    }
+  }
   .list {
     border-top: 1px solid var(--el-border-color-light);
     width: 100%;
-    height: 90%;
+    height: 80%;
+    flex: 1;
     cursor: pointer;
     position: relative;
     .pos {
