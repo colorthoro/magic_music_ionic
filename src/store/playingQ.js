@@ -82,9 +82,12 @@ export default defineStore('playingQ', {
     actions: {
         _addToPlaying(songOrSongs, addSongMode = 'rightNow') {
             if (songOrSongs instanceof Array) {
-                this.nowIndex = 0;
                 let pure = songOrSongs.filter(v => v instanceof Song);
-                this.playingQ = pure;
+                if (addSongMode === 'rightNow') {
+                    this.nowIndex = 0;
+                    this.playingQ = pure;
+                }
+                else pure.forEach(song => this._addToPlaying(song, addSongMode));
                 return;
             }
             if (songOrSongs instanceof Song) {
