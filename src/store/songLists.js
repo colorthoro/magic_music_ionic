@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia';
 import { Song } from '../tools/songsCache';
 import { aligoJsScanMusic } from '@/tools/api';
+import { ElMessage } from 'element-plus';
 
 const useSongListsStore = defineStore('songLists', {
     persist: {
@@ -115,8 +116,20 @@ const useSongListsStore = defineStore('songLists', {
             return true;
         },
         async getAllSongsFromCloud() {
+            let m = ElMessage({
+                message: '正在扫描云端',
+                grouping: true,
+                offset: 50,
+            });
             let res = await aligoJsScanMusic();
             this.putIntoList(res, 'allSongs');
+            m.close();
+            ElMessage({
+                message: `扫描完毕, 共有 ${res.length} 首歌曲。`,
+                grouping: true,
+                offset: 50,
+                type: 'success'
+            })
         },
         addNewList(listName = 'test') {
             // console.log('addNewList', listName);

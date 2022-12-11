@@ -29,13 +29,15 @@
             :showLine="false"
           >
             <template #default="{ item: song }">
-              <SongItem
-                :song="song"
-                :del="del"
-                :modiAble="false"
-                :moreAble="false"
-                :delAble="false"
-              />
+              <BounceChange @outed="del(song)">
+                <SongItem
+                  :song="song"
+                  :del="del"
+                  :modiAble="false"
+                  :moreAble="false"
+                  :delAble="false"
+                />
+              </BounceChange>
             </template>
           </VirtualList>
         </template>
@@ -54,7 +56,7 @@
             :list="historyList"
             id_field="file_id"
             :needCheck="false"
-            :itemHeight="30"
+            :itemHeight="50"
             :showStripe="true"
             :showLine="false"
           >
@@ -79,8 +81,9 @@ import { mapState, mapActions } from "pinia";
 import usePlayingQStore from "../store/playingQ";
 import SongItem from "../base/SongItem.vue";
 import VirtualList from "../base/VirtualList.vue";
+import BounceChange from "../base/BounceChange.vue";
 export default {
-  components: { SongItem, VirtualList },
+  components: { SongItem, VirtualList, BounceChange },
   data() {
     return {
       listOrHistory: 1,

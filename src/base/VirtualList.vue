@@ -153,16 +153,17 @@ export default {
         this.$emit("update:checkStatus", msg);
       },
     },
+    itemCnt() {
+      this.interval = setInterval(() => {
+        if (this.gradualCnt < this.itemCnt) {
+          this.gradualCnt++;
+        } else if (this.gradualCnt > this.itemCnt) {
+          this.gradualCnt--;
+        } else clearInterval(this.interval);
+      }, 0);
+    },
   },
-  mounted() {
-    this.interval = setInterval(() => {
-      if (this.gradualCnt < this.itemCnt) {
-        this.gradualCnt++;
-      } else if (this.gradualCnt > this.itemCnt) {
-        this.gradualCnt--;
-      } else clearInterval(this.interval);
-    }, 0);
-  },
+  mounted() {},
   beforeUnmount() {
     this.interval && clearInterval(this.interval);
   },

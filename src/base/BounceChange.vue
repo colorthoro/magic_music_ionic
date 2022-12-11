@@ -1,6 +1,7 @@
 <template>
   <div
     class="bounce-change-wrapper"
+    :class="{ dropped, outed }"
     @touchstart="beginHandler"
     @touchmove="_panHandler"
     @touchend="endHandler"
@@ -33,6 +34,14 @@ export default {
       type: Boolean,
       default: true,
     },
+    droppedTransition: {
+      type: Boolean,
+      default: true,
+    },
+    outedTransition: {
+      type: Boolean,
+      default: true,
+    },
   },
   emits: ["outed"],
   data() {
@@ -40,6 +49,8 @@ export default {
       triggered: false,
       startX: 0,
       x: 0,
+      dropped: false,
+      outed: false,
     };
   },
   computed: {
@@ -50,6 +61,8 @@ export default {
   methods: {
     beginHandler(e) {
       this.startX = parseInt(e.touches[0].clientX);
+      this.dropped = false;
+      this.outed = false;
     },
     _panHandler(e) {
       let clientX = parseInt(e.touches[0].clientX);
@@ -65,8 +78,11 @@ export default {
     endHandler() {
       this.startX = 0;
       this.triggered = false;
-      if (Math.abs(this.x) < this.borderDistance) this.x = 0;
-      else {
+      if (Math.abs(this.x) < this.borderDistance) {
+        this.dropped = true;
+        this.x = 0;
+      } else {
+        this.outed = true;
         let flag = this.x < 0 ? -1 : 1;
         if (
           (flag === -1 && !this.allowLeft) ||
@@ -95,6 +111,11 @@ export default {
   height: 100%;
   width: 100%;
   transform: v-bind("`translateX(${x}px)`");
+}
+.dropped {
+  transition: transform 0.3s ease;
+}
+.outed {
   transition: transform 0.3s ease;
 }
 </style>

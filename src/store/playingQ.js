@@ -2,6 +2,7 @@ import { defineStore } from "pinia";
 import { Song } from "../tools/songsCache";
 import useSongListsStore from "../store/songLists";
 import { debounce } from 'throttle-debounce';
+import { ElMessage } from "element-plus";
 
 // 播放队列的歌曲一开始是从localStorage新建的对象，需要与SongLists中的对象保持同步。
 function syncQ(src, target) {
@@ -184,9 +185,23 @@ export default defineStore('playingQ', {
             // 确定歌曲，避免重复
             songOrSongs && this._addToPlaying(songOrSongs);
             let targetSong = this.nowToPlay;
-            if (!targetSong) { console.error('请先选择歌曲吧！'); return; }
+            if (!targetSong) {
+                console.error('请先选择歌曲吧！');
+                ElMessage({
+                    message: '请先选择歌曲吧！',
+                    grouping: true,
+                    offset: 50,
+                    type: 'warning'
+                });
+                return;
+            }
             if (this.fetching && this.lastFetching === targetSong) {
                 console.log('Fetching the song, please wait...');
+                ElMessage({
+                    message: '重复点击',
+                    grouping: true,
+                    offset: 50
+                });
                 return;
             }
 
@@ -209,6 +224,12 @@ export default defineStore('playingQ', {
                 blobOrUrl = await targetSong.fetch(offline);
             } catch (e) {
                 console.error(e);
+                ElMessage({
+                    message: '获取失败 ' + targetSong.name,
+                    offset: 50,
+                    grouping: true,
+                    type: 'error',
+                })
                 this.failed = true;
                 return;
             }

@@ -1,13 +1,15 @@
 <template>
   <div class="container">
-    <div ref="song" class="song">
-      <div class="song-pic-wrap">
-        <div class="song-pic" @click="$router.push('/player')">
-          <img :class="{ paused: !playing }" :src="picUrlReciver.url" />
+    <BounceChange @outed="changeSong">
+      <div ref="song" class="song">
+        <div class="song-pic-wrap">
+          <div class="song-pic" @click="$router.push('/player')">
+            <img :class="{ paused: !playing }" :src="picUrlReciver.url" />
+          </div>
         </div>
+        <span>{{ nowIndex == 0 ? recent?.name : nowSentence }}</span>
       </div>
-      <span>{{ nowIndex == 0 ? recent?.name : nowSentence }}</span>
-    </div>
+    </BounceChange>
     <div class="mode">
       <!-- <span class="time">
         {{ formalTime(currentTime) }}|{{ formalTime(duration) }}
@@ -126,7 +128,7 @@ import useLyricStore from "../store/lyric";
 import usePicsStore from "../store/pics";
 import ProgressSlider from "../base/ProgressSlider.vue";
 import PlayList from "./PlayList.vue";
-import Hammer from "hammerjs";
+import BounceChange from "@/base/BounceChange.vue";
 import { debounce } from "throttle-debounce";
 
 export default {
@@ -134,6 +136,7 @@ export default {
   components: {
     PlayList,
     ProgressSlider,
+    BounceChange,
   },
   props: {
     height: {
@@ -143,7 +146,6 @@ export default {
   },
   data() {
     return {
-      mc: null, // hammerjs manager
       callPlayList: false,
       picUrlReciver: { id: 0, url: require("@/assets/background_square.jpg") },
     };
@@ -198,6 +200,11 @@ export default {
       this.unmountList.cancel({ upcomingOnly: true });
       this.callPlayList = true;
     },
+    changeSong({ flag, reset }) {
+      if (flag === -1) this.next();
+      else this.last();
+      reset();
+    },
   },
   watch: {
     recent: {
@@ -208,17 +215,9 @@ export default {
       },
     },
   },
-  mounted() {
-    // 左右滑动切歌
-    this.mc = new Hammer.Manager(this.$refs.song);
-    this.mc.add(
-      new Hammer.Pan({ direction: Hammer.DIRECTION_HORIZONTAL, threshold: 10 })
-    );
-    this.mc.on("pan", this.panHandler);
-  },
+  mounted() {},
   beforeUnmount() {
     delete this.picUrlReciver.id;
-    this.mc?.destroy();
     this.panHandler.cancel();
     this.unmountList.cancel();
   },
