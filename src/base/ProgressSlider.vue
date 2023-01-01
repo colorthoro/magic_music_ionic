@@ -114,11 +114,6 @@ export default {
       }
     },
   },
-  watch: {
-    percent() {
-      this.$refs.progress.style.width = this.percent * 100 + "%";
-    },
-  },
   beforeUnmount() {
     this.safeOnDrag.cancel();
   },
@@ -142,25 +137,28 @@ export default {
         .progress {
           position: absolute;
           height: 100%;
+          width: 100%;
           background-color: red;
-          transition: width 0.2s ease;
-          .progress-btn-pos {
-            position: absolute;
-            top: 50%;
-            right: 0;
-            transform: translate(50%, -50%);
-            .progress-btn {
-              width: 16px;
-              height: 16px;
-              border: 2px solid white;
-              border-radius: 50%;
-              background: red;
-              transition: transform 0.2s ease;
-              transform: scale(0.8);
-            }
-            .dragging {
-              transform: scale(1.2);
-            }
+          transform-origin: left;
+          transform: v-bind("`scaleX(${percent})`");
+          transition: transform 0.2s ease;
+        }
+        .progress-btn-pos {
+          position: absolute;
+          top: 50%;
+          left: 0v-bind(" percent * 100 + '%' ");
+          transform: translate(-50%, -50%);
+          .progress-btn {
+            width: 16px;
+            height: 16px;
+            border: 2px solid white;
+            border-radius: 50%;
+            background: red;
+            transition: transform 0.2s ease;
+            transform: scale(0.8);
+          }
+          .dragging {
+            transform: scale(1.2);
           }
         }
       }
