@@ -143,7 +143,7 @@ export default {
       }
     },
     outedHandler({ flag, reset }) {
-      setTimeout(reset, 1000);
+      setTimeout(reset, 300); // 保持与背景板移动时长相等
       let i = this.nowListIndex - flag;
       console.log(i, flag);
       if (i < 0 || i >= this.allLists.length) return;
